@@ -2,43 +2,26 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/epubsage.svg)](https://pypi.org/project/epubsage/)
 [![Python versions](https://img.shields.io/pypi/pyversions/epubsage.svg)](https://pypi.org/project/epubsage/)
-[![Tests](https://github.com/Abdullah-Wex/epubsage/actions/workflows/tests.yml/badge.svg)](https://github.com/Abdullah-Wex/epubsage/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**EpubSage** is a powerful Python library and CLI tool for extracting structured content, metadata, and images from EPUB files. It handles the complexity of diverse publisher formats and provides a clean, unified API.
-
-## Why EpubSage?
-
-EPUB files vary significantly between publishers. Headers can be nested in `<span>` tags, chapters split across files, and metadata formats differ wildly. EpubSage abstracts this complexity:
-
-```python
-from epub_sage import process_epub
-
-result = process_epub("book.epub")
-print(f"Title: {result.title}")
-print(f"Chapters: {result.total_chapters}")
-```
-
-That's it. One function call to extract everything.
+Lightweight EPUB inspection library — version detection, TOC discovery, and content extraction.
 
 ## Features
 
 | Feature | Description |
 |---------|-------------|
-| **Publisher-Agnostic** | Works with O'Reilly, Packt, Manning, and more |
-| **Complete Extraction** | Chapters, metadata, images, word counts, reading time |
-| **TOC-Based Extraction** | Precise section splitting using TOC anchor boundaries |
-| **Smart Image Handling** | Discovers and validates all referenced images |
-| **Content Classification** | Identifies front matter, chapters, back matter, parts |
-| **Dublin Core Metadata** | Full standards-compliant metadata extraction |
-| **TOC Parsing** | Supports NCX (EPUB 2) and NAV (EPUB 3) |
-| **Full-Text Search** | Search across all book content |
-| **CLI Tool** | 13 commands for complete EPUB analysis |
+| **Version Detection** | EPUB 2.0 and 3.0 support |
+| **TOC Discovery** | Automatic NAV (EPUB 3) and NCX (EPUB 2) detection |
+| **TOC Parsing** | Parse navigation points with full tree structure |
+| **Classification** | Classify entries as chapter, part, front/back matter, section |
+| **Content Extraction** | Extract content as HTML, plaintext, or markdown |
+| **Security** | Zip bomb detection and zip slip prevention |
+| **CLI** | 5 commands for EPUB inspection from the terminal |
 
 ## Requirements
 
 - Python 3.10+
-- Dependencies: `beautifulsoup4`, `lxml`, `pydantic`, `typer`, `rich`
+- Dependencies: `markdownify`, `typer`
 
 ## Installation
 
@@ -57,234 +40,120 @@ uv add epubsage
 ### Python
 
 ```python
-from epub_sage import process_epub
+from epubsage import inspect_epub
 
-result = process_epub("book.epub")
+info = inspect_epub("book.epub")
 
-print(f"Title: {result.title}")
-print(f"Author: {result.author}")
-print(f"Words: {result.total_words:,}")
-print(f"Reading time: {result.estimated_reading_time}")
-
-for chapter in result.chapters[:3]:
-    print(f"  {chapter['chapter_id']}: {chapter['title']}")
+print(f"Title:   {info.title}")
+print(f"Version: EPUB {info.version}")
+print(f"TOC:     {info.toc.toc_type}")
 ```
 
-![Python Basic Usage](docs/screenshots/python-basic.png)
+![Quick Start](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/python-quickstart.png?raw=true)
 
 ### Command Line
 
 ```bash
-epub-sage info book.epub
+epubsage inspect book.epub
 ```
 
-![CLI Info](docs/screenshots/cli-info.png)
+![CLI Inspect](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/cli-inspect.png?raw=true)
 
-## Command Line Interface
-
-EpubSage includes 13 commands for complete EPUB analysis.
+## CLI Commands
 
 ```bash
-epub-sage --help
+epubsage --help
 ```
 
-![CLI Help](docs/screenshots/cli-help.png)
+![CLI Help](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/cli-help.png?raw=true)
 
 | Command | Description |
 |---------|-------------|
-| `info` | Quick book summary |
-| `stats` | Detailed statistics |
-| `chapters` | List chapters with word counts |
-| `metadata` | Dublin Core metadata |
-| `toc` | Table of contents |
-| `images` | Image distribution |
-| `search` | Full-text search |
-| `validate` | Validate EPUB structure |
-| `spine` | Reading order |
-| `manifest` | All EPUB resources |
-| `extract` | Export to JSON |
-| `list` | Raw EPUB contents |
-| `cover` | Extract cover image |
+| `inspect` | Display EPUB version, TOC type, and title |
+| `extract` | Extract EPUB contents to a directory |
+| `validate` | Validate ZIP structure, OPF, and TOC |
+| `toc` | Display table of contents as a classified tree |
+| `content` | Extract content for a specific section |
 
-**[View full CLI documentation →](docs/CLI.md)**
+**[Full CLI documentation →](docs/CLI.md)**
 
-### Key Commands
-
-#### chapters
+### Shell Auto-Completion
 
 ```bash
-epub-sage chapters book.epub
+epubsage --install-completion
 ```
 
-![CLI Chapters](docs/screenshots/cli-chapters.png)
+Supported shells: **Bash**, **Zsh**, **Fish**, **PowerShell**
 
-#### search
+## Python API
 
-```bash
-epub-sage search book.epub "machine learning"
-```
+### Core Functions
 
-![CLI Search](docs/screenshots/cli-search.png)
+| Function | Description |
+|----------|-------------|
+| `inspect_epub()` | One-step inspection: hash, extract, parse OPF, detect TOC |
+| `hash_epub()` | SHA-256 hash of EPUB file |
+| `extract_epub()` | Extract EPUB ZIP to directory |
+| `find_opf()` | Find the `.opf` file in extracted EPUB |
+| `parse_opf()` | Parse OPF for version and TOC info |
+| `parse_ncx()` | Parse NCX file for navigation map |
+| `parse_nav()` | Parse EPUB 3 NAV document |
+| `classify_navpoint()` | Classify a NavPoint by label |
+| `classify_children()` | Classify children by nesting depth |
+| `extract_content()` | Extract content as HTML, plaintext, or markdown |
 
-#### extract
+### Data Types
 
-```bash
-epub-sage extract book.epub -o output.json
-```
+| Type | Description |
+|------|-------------|
+| `EpubInfo` | Inspection result: version, TOC, OPF path, title |
+| `TocInfo` | TOC detection: type, paths |
+| `NavPoint` | Navigation point: label, file, anchor, children, type |
+| `NcxData` | Parsed NCX: doc title, nav points |
 
-![CLI Extract](docs/screenshots/cli-extract.png)
+**[Full API documentation →](docs/API.md)**
 
-## Python Library
-
-### Basic Processing
-
-```python
-from epub_sage import process_epub
-
-result = process_epub("book.epub")
-
-if result.success:
-    print(f"Title: {result.title}")
-    print(f"Author: {result.author}")
-    print(f"Chapters: {result.total_chapters}")
-else:
-    print(f"Errors: {result.errors}")
-```
-
-### Iterate Chapters
-
-```python
-for chapter in result.chapters:
-    print(f"{chapter['chapter_id']}: {chapter['title']}")
-    print(f"  Words: {chapter['word_count']}")
-    print(f"  Images: {len(chapter['images'])}")
-    print(f"  Type: {chapter['content_type']}")
-```
-
-![Python Chapters](docs/screenshots/python-chapters.png)
-
-### Access Metadata
-
-```python
-metadata = result.full_metadata
-
-print(f"Title: {metadata.title}")
-print(f"Publisher: {metadata.publisher}")
-print(f"ISBN: {metadata.get_isbn()}")
-print(f"Publication Date: {metadata.get_publication_date()}")
-```
-
-![Python Metadata](docs/screenshots/python-metadata.png)
-
-### Extract Images
-
-```python
-for chapter in result.chapters:
-    if chapter['images']:
-        print(f"Chapter: {chapter['title']}")
-        for img in chapter['images']:
-            print(f"  - {img}")
-```
-
-![Python Images](docs/screenshots/python-images.png)
-
-### Content Blocks
-
-```python
-chapter = result.chapters[0]
-
-for block in chapter['content']:
-    print(f"[{block['tag']}] {block['text'][:100]}...")
-```
-
-![Python Content](docs/screenshots/python-content.png)
-
-**[View full API documentation →](docs/API.md)**
-
-**[View real-world examples →](docs/EXAMPLES.md)**
-
-## Output Format
-
-### SimpleEpubResult
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `title` | `str` | Book title |
-| `author` | `str` | Primary author |
-| `publisher` | `str` | Publisher name |
-| `chapters` | `list[dict]` | Chapter data |
-| `total_chapters` | `int` | Chapter count |
-| `total_words` | `int` | Word count |
-| `estimated_reading_time` | `dict` | `{'hours': N, 'minutes': N}` |
-| `success` | `bool` | Processing status |
-| `full_metadata` | `DublinCoreMetadata` | Complete metadata |
-
-### Chapter Dictionary
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `chapter_id` | `int` | Sequential ID |
-| `title` | `str` | Chapter title |
-| `word_count` | `int` | Words in chapter |
-| `images` | `list[str]` | Image paths |
-| `content` | `list[dict]` | Content blocks |
-| `sections` | `list[dict]` | TOC-based sections with nested `subsections` |
-| `content_type` | `str` | `chapter`, `front_matter`, `back_matter`, `part` |
-
-**[View complete data models →](docs/API.md#data-models)**
+**[Examples →](docs/EXAMPLES.md)**
 
 ## Architecture
 
 ```
-epub_sage/
-├── core/           # Parsers (Dublin Core, Structure, TOC)
-├── extractors/     # EPUB handling, content extraction
-├── processors/     # Processing pipelines
-├── models/         # Pydantic data models
-├── services/       # Search, export services
-└── cli.py          # Command-line interface
+epubsage/
+├── __init__.py     # Public API: inspect_epub + re-exports
+├── classify.py     # classify_navpoint, classify_children
+├── cli.py          # CLI: inspect, extract, validate, toc, content
+├── content.py      # extract_content (HTML, plaintext, markdown)
+├── epub.py         # hash_epub, extract_epub, find_opf
+├── exceptions.py   # EpubSageError, InvalidEpubError
+├── nav.py          # parse_nav (EPUB 3 NAV)
+├── ncx.py          # parse_ncx, NavPoint, NcxData
+└── opf.py          # parse_opf, EpubInfo, TocInfo
 ```
 
-**Processing Pipeline:**
-
-1. `EpubExtractor` → Unzips EPUB
-2. `DublinCoreParser` → Extracts metadata
-3. `EpubStructureParser` → Analyzes structure
-4. `ContentExtractor` → Extracts text & images
-5. `SimpleEpubProcessor` → Orchestrates all steps
-
 ## Development
-
-### Setup
 
 ```bash
 git clone https://github.com/Abdullah-Wex/epubsage.git
 cd epubsage
-uv venv && source .venv/bin/activate
-uv pip install -e ".[dev]"
+uv sync
 ```
 
-### Commands
-
 ```bash
-make test      # Run 60+ tests
-make format    # Format code
-make lint      # Check quality
-```
-
-### Running Tests
-
-```bash
-PYTHONPATH="$PWD" .venv/bin/python -m pytest tests/ -v
+make lint        # ruff
+make typecheck   # mypy
+make security    # bandit
+make test        # pytest
+make quality     # all checks
 ```
 
 ## Documentation
 
 | Document | Description |
 |----------|-------------|
-| [CLI Reference](docs/CLI.md) | Complete CLI documentation |
-| [API Reference](docs/API.md) | Python API documentation |
-| [Examples](docs/EXAMPLES.md) | Real-world use cases |
+| [API Reference](docs/API.md) | Complete Python API documentation |
+| [CLI Reference](docs/CLI.md) | All CLI commands and options |
+| [Examples](docs/EXAMPLES.md) | Practical usage examples |
+| [Changelog](CHANGELOG.md) | Version history |
 
 ## License
 
@@ -293,9 +162,3 @@ MIT License. See [LICENSE](LICENSE) for details.
 ## Contributing
 
 Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
----
-
-<p align="center">
-  <strong>EpubSage</strong> — Extract. Analyze. Build.
-</p>

@@ -20,6 +20,6 @@ We welcome contributions! Please follow these guidelines:
 
 ## Coding Standards
 
-- Follow PEP 8 (enforced by `autopep8` and `ruff`).
+- Follow PEP 8 (enforced by `ruff`).
 - Add docstrings to new functions and classes.
 - Ensure all tests pass.

@@ -4,15 +4,15 @@ build-backend = "hatchling.build"
 
 [project]
 name = "epubsage"
-version = "0.3.0"
-description = "A professional EPUB structure and content extraction library with Dublin Core metadata support."
+version = "0.5.0"
+description = "Lightweight EPUB inspection — version detection and TOC discovery."
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
 authors = [
     {name = "Abdullah Wex", email = "alshreef15xm@gmail.com"}
 ]
-keywords = ["epub", "ebook", "parser", "metadata", "dublin-core", "extraction", "reading"]
+keywords = ["epub", "ebook", "parser", "metadata"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -28,14 +28,15 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "beautifulsoup4>=4.12.0",
-    "pydantic>=2.0.0",
-    "lxml>=5.0.0",
-    "typer[all]>=0.12.0",
+    "markdownify>=0.14.1",
+    "typer>=0.12.0",
 ]
 
 [project.scripts]
-epub-sage = "epub_sage.cli:cli_entry"
+epubsage = "epubsage.cli:cli_entry"
+
+[project.optional-dependencies]
+minio = ["minio>=7.2.0"]
 
 [project.urls]
 Homepage = "https://github.com/Abdullah-Wex/epubsage"
@@ -50,13 +51,14 @@ dev = [
     "pytest-cov>=4.0.0",
     "ruff>=0.3.0",
     "mypy>=1.0.0",
+    "bandit>=1.7.0",
 ]
 
 [tool.hatch.build]
-packages = ["epub_sage"]
+packages = ["epubsage"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/epub_sage", "/README.md", "/LICENSE", "/pyproject.toml", "/CHANGELOG.md"]
+include = ["/epubsage", "/README.md", "/LICENSE", "/pyproject.toml", "/CHANGELOG.md"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["epub_sage"]
+packages = ["epubsage"]
