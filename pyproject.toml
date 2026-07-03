@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "epubsage"
-version = "0.5.0"
+version = "0.7.0"
 description = "Lightweight EPUB inspection — version detection and TOC discovery."
 readme = "README.md"
 license = {file = "LICENSE"}

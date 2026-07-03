@@ -8,13 +8,20 @@ from rich.console import Console
 from rich.tree import Tree
 
 from . import __version__, inspect_epub
-from .classify import classify_children, classify_navpoint
+from .classify import (
+    classify_children,
+    classify_navpoint,
+    merge_same_file_runs,
+    refine_positional,
+    refine_structural,
+)
 from .content import extract_content
 from .epub import extract_epub, find_opf
 from .exceptions import InvalidEpubError
 from .nav import parse_nav
 from .ncx import NavPoint, parse_ncx
 from .opf import parse_opf
+from .search import search as run_search
 from .storage import resolve_output_dir
 
 _DEBUG = os.environ.get("EPUBSAGE_DEBUG", "").lower() in ("1", "true")
@@ -164,9 +171,15 @@ def toc(
         console.print("[yellow]No table of contents found.[/yellow]")
         raise typer.Exit(1)
 
-    # Classify top-level points, then children by depth
+    # Collapse Packt-style split chapter pairs before classification
+    nav_points = merge_same_file_runs(nav_points)
+
+    # Classify top-level points, then refine with positional and
+    # structural passes before walking children.
     for pt in nav_points:
         pt.nav_type = classify_navpoint(pt)
+    refine_structural(nav_points)
+    refine_positional(nav_points)
     classify_children(nav_points)
 
     # Group chapters under parts (flat TOC only)
@@ -197,10 +210,16 @@ def toc(
             nav_type = pt.nav_type or "section"
             style = type_style.get(nav_type, "")
             tag = type_tag.get(nav_type, "")
-            src = f"#{pt.anchor}" if pt.anchor else pt.file
+            loc_parts = []
+            if pt.file:
+                loc_parts.append(pt.file)
+            if pt.anchor:
+                loc_parts.append(f"#{pt.anchor}")
+            src = " · ".join(loc_parts)
+            loc_str = f"  [dim]({src})[/dim]" if src else ""
             tag_str = f"[{style}]\\[{tag}][/{style}] " if tag else ""
             label_str = f"[{style}]{pt.label}[/{style}]" if style else pt.label
-            branch = parent.add(f"{tag_str}{label_str}  [dim]({src})[/dim]")
+            branch = parent.add(f"{tag_str}{label_str}{loc_str}")
             _add_points(branch, pt.children)
 
     _add_points(tree, grouped)
@@ -455,6 +474,91 @@ def _group_under_parts(points: list[NavPoint]) -> list[NavPoint]:
             result.append(pt)
 
     return result
+
+
+@app.command()
+def search(
+    ctx: typer.Context,
+    path: Path | None = typer.Argument(None, help="Path to EPUB file."),
+    query: str | None = typer.Argument(None, help="Search query."),
+    group: str = typer.Option(
+        "section", "--group", "-g",
+        help="Result grouping: section, chapter, or flat.",
+    ),
+    limit: int = typer.Option(10, "--limit", "-n", help="Max results."),
+    show_content: bool = typer.Option(
+        False, "--show-content", help="Print each result's section body.",
+    ),
+    fmt: str | None = typer.Option(
+        None, "--format", "-f",
+        help="Content format (with --show-content): html, plaintext, markdown.",
+    ),
+    output_dir: str = typer.Option(
+        _DEFAULT_OUT, "--output-dir", "-o", help="Extraction/index directory.",
+    ),
+) -> None:
+    """Full-text BM25 search across an EPUB's sections."""
+    epub_path = _require_path(ctx, path)
+    if query is None:
+        console.print("[red]Error:[/red] Missing required argument: QUERY\n")
+        console.print(ctx.get_help())
+        raise typer.Exit(1)
+    if group not in ("section", "chapter", "flat"):
+        console.print("[red]Error:[/red] --group must be section, chapter, or flat\n")
+        raise typer.Exit(1)
+    if fmt is not None and not show_content:
+        console.print(
+            "[red]Error:[/red] --format requires --show-content\n"
+        )
+        raise typer.Exit(1)
+    if fmt is not None and fmt not in ("html", "plaintext", "markdown"):
+        console.print(
+            "[red]Error:[/red] --format must be html, plaintext, or markdown\n"
+        )
+        raise typer.Exit(1)
+    content_format = fmt or "html"
+
+    try:
+        hits = run_search(
+            str(epub_path), query, group=group, limit=limit, output_dir=output_dir,
+            with_content=show_content, content_format=content_format,
+        )
+    except InvalidEpubError as e:
+        console.print(f"[red]Error:[/red] {e}\n")
+        console.print(ctx.get_help())
+        raise typer.Exit(1) from None
+    except Exception as e:
+        console.print(f"[red]Unexpected error:[/red] {e}\n")
+        console.print(ctx.get_help())
+        raise typer.Exit(1) from None
+
+    if not hits:
+        console.print(f"[yellow]No matches for[/yellow] {query!r}")
+        return
+
+    console.print(
+        f"[bold]{len(hits)} result(s) for[/bold] {query!r} "
+        f"[dim](--group {group})[/dim]\n"
+    )
+    for h in hits:
+        crumb = " › ".join(h.breadcrumb)  # noqa: RUF001
+        loc_parts = []
+        if h.file:
+            loc_parts.append(h.file)
+        if h.anchor:
+            loc_parts.append(f"#{h.anchor}")
+        loc = " · ".join(loc_parts)
+        suffix = (
+            f" [dim]({h.n_sections} matching section(s))[/dim]"
+            if group == "chapter" and h.n_sections > 1 else ""
+        )
+        console.print(f"[green]{h.score:6.2f}[/green]  {crumb}{suffix}")
+        if loc:
+            console.print(f"        [dim]({loc})[/dim]")
+        if show_content and h.content:
+            console.print(f"[dim]{'─' * 60}[/dim]")
+            console.print(h.content, markup=False, highlight=False)
+            console.print(f"[dim]{'─' * 60}[/dim]\n")
 
 
 def cli_entry() -> None:

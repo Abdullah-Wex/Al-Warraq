@@ -99,10 +99,7 @@ def _detect_toc(root: ET.Element, opf_dir: Path, epub_dir: str | None) -> TocInf
             href = item.get("href", "")
             if href:
                 ncx_href = href
-                if epub_dir:
-                    resolved = (opf_dir / href).resolve()
-                    if resolved.exists():
-                        ncx_path = resolved
+                ncx_path = _resolve_href(opf_dir, href, epub_dir)
             break
 
     # Fallback: check common NCX paths if not in manifest
@@ -148,13 +145,30 @@ def _detect_toc(root: ET.Element, opf_dir: Path, epub_dir: str | None) -> TocInf
     return TocInfo(toc_type="unknown", ncx_href=ncx_href, ncx_path=ncx_path)
 
 
+def _resolve_href(opf_dir: Path, href: str, epub_dir: str | None) -> Path | None:
+    """Resolve a manifest href to an absolute path inside the extracted EPUB.
+
+    Strips a leading ``/`` so that a non-conformant absolute href
+    (e.g. ``"/toc.ncx"``) resolves relative to the extraction root rather
+    than the filesystem root.
+    """
+    if not epub_dir:
+        return None
+    stripped = href.lstrip("/")
+    candidates = [(opf_dir / stripped).resolve()]
+    if href.startswith("/"):
+        candidates.append((Path(epub_dir) / stripped).resolve())
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
 def _build_toc_info(
     toc_type: str, href: str, opf_dir: Path, epub_dir: str | None
 ) -> TocInfo:
     """Build TocInfo, resolving absolute path if epub_dir is provided."""
-    toc_path = None
-    if epub_dir:
-        resolved = (opf_dir / href).resolve()
-        if resolved.exists():
-            toc_path = resolved
-    return TocInfo(toc_type=toc_type, toc_href=href, toc_path=toc_path)
+    return TocInfo(
+        toc_type=toc_type, toc_href=href,
+        toc_path=_resolve_href(opf_dir, href, epub_dir),
+    )
