@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 
 import typer
-from rich.console import Console
 from rich.tree import Tree
 
 from . import __version__, inspect_epub
@@ -16,11 +15,20 @@ from .classify import (
     refine_structural,
 )
 from .content import extract_content
-from .epub import extract_epub, find_opf
+from .epub import extract_epub, find_opf, hash_epub
 from .exceptions import InvalidEpubError
 from .nav import parse_nav
 from .ncx import NavPoint, parse_ncx
 from .opf import parse_opf
+from .output import (
+    console,
+    emit_data,
+    emit_json,
+    fail,
+    navpoint_to_dict,
+    print_kv,
+    warn,
+)
 from .search import search as run_search
 from .storage import resolve_output_dir
 
@@ -29,17 +37,13 @@ app = typer.Typer(
     help="Al-Warraq (الورّاق) — lightweight EPUB inspection",
     pretty_exceptions_enable=_DEBUG,
 )
-console = Console()
-
 _DEFAULT_OUT = resolve_output_dir()
 
 
 def _require_path(ctx: typer.Context, path: Path | None) -> Path:
-    """Validate that path was provided. Show help and exit if not."""
+    """Validate that path was provided; one-line error otherwise."""
     if path is None:
-        console.print("[red]Error:[/red] Missing required argument: PATH\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1)
+        fail("Missing required argument: PATH", ctx.command.name, code=2)
     return path
 
 
@@ -66,26 +70,37 @@ def inspect(
     output_dir: str = typer.Option(
         _DEFAULT_OUT, "--output-dir", "-o", help="Extraction directory.",
     ),
+    as_json: bool = typer.Option(
+        False, "--json", help="Print a single JSON object to stdout.",
+    ),
 ) -> None:
     """Inspect an EPUB: version, TOC type, title."""
     epub_path = _require_path(ctx, path)
     try:
         info = inspect_epub(str(epub_path), output_dir)
     except InvalidEpubError as e:
-        console.print(f"[red]Error:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        fail(str(e), "inspect")
     except Exception as e:
-        console.print(f"[red]Unexpected error:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        fail(f"Unexpected error: {e}", "inspect")
 
-    console.print(f"[bold]Title:[/bold]    {info.title or '(none)'}")
-    console.print(f"[bold]Version:[/bold]  EPUB {info.version}")
-    console.print(f"[bold]TOC Type:[/bold] {info.toc.toc_type}")
+    if as_json:
+        emit_json({
+            "title": info.title,
+            "version": info.version,
+            "toc": {"type": info.toc.toc_type, "href": info.toc.toc_href},
+            "opf_path": str(info.opf_path),
+            "hash": hash_epub(str(epub_path)),
+        })
+        return
+    pairs = [
+        ("Title", info.title or "(none)"),
+        ("Version", f"EPUB {info.version}"),
+        ("TOC Type", info.toc.toc_type),
+    ]
     if info.toc.toc_href:
-        console.print(f"[bold]TOC File:[/bold] {info.toc.toc_href}")
-    console.print(f"[bold]OPF Path:[/bold] {info.opf_path}")
+        pairs.append(("TOC File", info.toc.toc_href))
+    pairs.append(("OPF Path", str(info.opf_path)))
+    print_kv(pairs)
 
 
 @app.command()
@@ -95,27 +110,35 @@ def extract(
     output_dir: str = typer.Option(
         _DEFAULT_OUT, "--output-dir", "-o", help="Extraction directory.",
     ),
+    as_json: bool = typer.Option(
+        False, "--json", help="Print a single JSON object to stdout.",
+    ),
 ) -> None:
     """Extract an EPUB to a directory."""
     epub_path = _require_path(ctx, path)
     try:
         extract_dir = extract_epub(str(epub_path), output_dir)
     except InvalidEpubError as e:
-        console.print(f"[red]Error:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        fail(str(e), "extract")
     except Exception as e:
-        console.print(f"[red]Unexpected error:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        fail(f"Unexpected error: {e}", "extract")
 
-    console.print(f"Extracted to: {extract_dir}")
+    if as_json:
+        emit_json({
+            "extract_dir": str(extract_dir),
+            "hash": hash_epub(str(epub_path)),
+        })
+        return
+    print_kv([("Extracted to", str(extract_dir))])
 
 
 @app.command()
 def validate(
     ctx: typer.Context,
     path: Path | None = typer.Argument(None, help="Path to EPUB file."),
+    as_json: bool = typer.Option(
+        False, "--json", help="Print a single JSON object to stdout.",
+    ),
 ) -> None:
     """Validate an EPUB file (valid zip, has OPF, has TOC)."""
     epub_path = _require_path(ctx, path)
@@ -124,14 +147,20 @@ def validate(
         opf_path = find_opf(str(extract_dir))
         info = parse_opf(str(opf_path), str(extract_dir))
     except InvalidEpubError as e:
-        console.print(f"[red]Invalid:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        if as_json:
+            emit_json({"valid": False, "error": str(e)})
+            raise typer.Exit(1) from None
+        fail(f"Invalid: {e}", "validate")
     except Exception as e:
-        console.print(f"[red]Unexpected error:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        fail(f"Unexpected error: {e}", "validate")
 
+    if as_json:
+        emit_json({
+            "valid": True,
+            "version": info.version,
+            "toc": {"type": info.toc.toc_type, "href": info.toc.toc_href},
+        })
+        return
     console.print(f"[green]Valid EPUB {info.version}[/green]")
     if info.toc.toc_type != "unknown":
         console.print(f"  TOC: {info.toc.toc_type} ({info.toc.toc_href})")
@@ -146,19 +175,18 @@ def toc(
     output_dir: str = typer.Option(
         _DEFAULT_OUT, "--output-dir", "-o", help="Extraction directory.",
     ),
+    as_json: bool = typer.Option(
+        False, "--json", help="Print a single JSON object to stdout.",
+    ),
 ) -> None:
     """Display table of contents as a tree."""
     epub_path = _require_path(ctx, path)
     try:
         info = inspect_epub(str(epub_path), output_dir)
     except InvalidEpubError as e:
-        console.print(f"[red]Error:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        fail(str(e), "toc")
     except Exception as e:
-        console.print(f"[red]Unexpected error:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        fail(f"Unexpected error: {e}", "toc")
 
     if info.toc.ncx_path:
         ncx = parse_ncx(str(info.toc.ncx_path))
@@ -168,8 +196,7 @@ def toc(
         nav_points = parse_nav(str(info.toc.toc_path))
         title = info.title or "(untitled)"
     else:
-        console.print("[yellow]No table of contents found.[/yellow]")
-        raise typer.Exit(1)
+        fail("No table of contents found.", "toc")
 
     # Collapse Packt-style split chapter pairs before classification
     nav_points = merge_same_file_runs(nav_points)
@@ -184,6 +211,14 @@ def toc(
 
     # Group chapters under parts (flat TOC only)
     grouped = _group_under_parts(nav_points)
+
+    if as_json:
+        emit_json({
+            "doc_title": title,
+            "nav_points": [navpoint_to_dict(pt) for pt in grouped],
+        })
+        return
+
     tree = Tree(f"[bold]{title}[/bold]")
 
     type_style = {
@@ -243,30 +278,26 @@ def content(
     output_dir: str = typer.Option(
         _DEFAULT_OUT, "--output-dir", "-o", help="Extraction directory.",
     ),
+    as_json: bool = typer.Option(
+        False, "--json", help="Print a single JSON object to stdout.",
+    ),
 ) -> None:
     """Extract content for a TOC section by anchor or file."""
     epub_path = _require_path(ctx, path)
     if anchor is None and file is None:
-        console.print("[red]Error:[/red] Provide --anchor or --file\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1)
+        fail("Provide --anchor or --file", "content", code=2)
 
     try:
         info = inspect_epub(str(epub_path), output_dir)
     except InvalidEpubError as e:
-        console.print(f"[red]Error:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        fail(str(e), "content")
     except Exception as e:
-        console.print(f"[red]Unexpected error:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        fail(f"Unexpected error: {e}", "content")
 
     # Parse TOC to get all NavPoints
     nav_points = _get_nav_points(info)
     if nav_points is None:
-        console.print("[yellow]No table of contents found.[/yellow]")
-        raise typer.Exit(1)
+        fail("No table of contents found.", "content")
 
     # Flatten all navpoints
     all_points = _flatten_navpoints(nav_points)
@@ -279,10 +310,7 @@ def content(
         # Resolve file — try exact match, then match by filename
         resolved = _resolve_toc_file(file, all_points)
         if resolved is None:
-            console.print(
-                f"[red]Error:[/red] File '{file}' not found in TOC",
-            )
-            raise typer.Exit(1)
+            fail(f"File '{file}' not found in TOC", "content")
         target_file = resolved
         target_anchor: str | None = anchor
         if anchor is not None:
@@ -306,10 +334,7 @@ def content(
             (pt for pt in all_points if pt.anchor == anchor), None,
         )
         if target_pt is None:
-            console.print(
-                f"[red]Error:[/red] Anchor '{anchor}' not found in TOC",
-            )
-            raise typer.Exit(1)
+            fail(f"Anchor '{anchor}' not found in TOC", "content")
         target_file = target_pt.file
         target_anchor = anchor
         child_anchors = _collect_child_anchors(target_pt)
@@ -320,8 +345,7 @@ def content(
     else:
         html_path = (opf_dir / target_file).resolve()
     if not html_path.exists():
-        console.print(f"[red]Error:[/red] File not found: {html_path}")
-        raise typer.Exit(1)
+        fail(f"File not found: {html_path}")
 
     # Collect all TOC anchors for this file
     toc_anchors = [
@@ -347,10 +371,17 @@ def content(
             stop_anchors=stop_anchors,
         )
     except InvalidEpubError as e:
-        console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1) from None
+        fail(str(e), "content")
 
-    console.print(html, highlight=False)
+    if as_json:
+        emit_json({
+            "file": target_file,
+            "anchor": target_anchor,
+            "format": parse_to or "html",
+            "content": html,
+        })
+    else:
+        emit_data(html)
 
 
 def _get_nav_points(info: object) -> list[NavPoint] | None:
@@ -496,26 +527,20 @@ def search(
     output_dir: str = typer.Option(
         _DEFAULT_OUT, "--output-dir", "-o", help="Extraction/index directory.",
     ),
+    as_json: bool = typer.Option(
+        False, "--json", help="Print a single JSON object to stdout.",
+    ),
 ) -> None:
     """Full-text BM25 search across an EPUB's sections."""
     epub_path = _require_path(ctx, path)
     if query is None:
-        console.print("[red]Error:[/red] Missing required argument: QUERY\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1)
+        fail("Missing required argument: QUERY", "search", code=2)
     if group not in ("section", "chapter", "flat"):
-        console.print("[red]Error:[/red] --group must be section, chapter, or flat\n")
-        raise typer.Exit(1)
+        fail("--group must be section, chapter, or flat", "search", code=2)
     if fmt is not None and not show_content:
-        console.print(
-            "[red]Error:[/red] --format requires --show-content\n"
-        )
-        raise typer.Exit(1)
+        fail("--format requires --show-content", "search", code=2)
     if fmt is not None and fmt not in ("html", "plaintext", "markdown"):
-        console.print(
-            "[red]Error:[/red] --format must be html, plaintext, or markdown\n"
-        )
-        raise typer.Exit(1)
+        fail("--format must be html, plaintext, or markdown", "search", code=2)
     content_format = fmt or "html"
 
     try:
@@ -524,16 +549,30 @@ def search(
             with_content=show_content, content_format=content_format,
         )
     except InvalidEpubError as e:
-        console.print(f"[red]Error:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        fail(str(e), "search")
     except Exception as e:
-        console.print(f"[red]Unexpected error:[/red] {e}\n")
-        console.print(ctx.get_help())
-        raise typer.Exit(1) from None
+        fail(f"Unexpected error: {e}", "search")
+
+    if as_json:
+        emit_json({
+            "query": query,
+            "group": group,
+            "total": len(hits),
+            "results": [
+                {
+                    "score": round(h.score, 4),
+                    "breadcrumb": list(h.breadcrumb),
+                    "file": h.file,
+                    "anchor": h.anchor,
+                    **({"content": h.content} if show_content and h.content else {}),
+                }
+                for h in hits
+            ],
+        })
+        return
 
     if not hits:
-        console.print(f"[yellow]No matches for[/yellow] {query!r}")
+        warn(f"No matches for {query!r}")
         return
 
     console.print(
