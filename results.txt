@@ -1,0 +1,94 @@
+./.claude/settings.local.json:pypi
+./.github/workflows/publish.yml:pypi
+./.venv/lib/python3.13/site-packages/_pytest/_code/code.py:pypi
+./.venv/lib/python3.13/site-packages/bandit-1.9.4.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/bandit/blacklists/calls.py:pypi
+./.venv/lib/python3.13/site-packages/bandit/blacklists/imports.py:pypi
+./.venv/lib/python3.13/site-packages/bandit/plugins/markupsafe_markup_xss.py:pypi
+./.venv/lib/python3.13/site-packages/beautifulsoup4-4.14.3.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/bs4/css.py:pypi
+./.venv/lib/python3.13/site-packages/bs4/dammit.py:pypi
+./.venv/lib/python3.13/site-packages/coverage-7.13.1.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/epubsage-0.5.0.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/librt-0.7.5.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/markdown_it_py-4.0.0.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/markdownify-1.2.2.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/mdurl-0.1.2.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/mypy/modulefinder.py:PyPI
+./.venv/lib/python3.13/site-packages/mypy/stubinfo.py:PyPI
+./.venv/lib/python3.13/site-packages/mypy/typeshed/stdlib/distutils/command/register.pyi:PyPI
+./.venv/lib/python3.13/site-packages/mypy/typeshed/stdlib/distutils/command/upload.pyi:PyPI
+./.venv/lib/python3.13/site-packages/mypy/typeshed/stdlib/distutils/config.pyi:PyPI
+./.venv/lib/python3.13/site-packages/mypyc/build.py:PyPI
+./.venv/lib/python3.13/site-packages/mypyc/codegen/emitclass.py:PyPi
+./.venv/lib/python3.13/site-packages/mypyc/lib-rt/CPy.h:PyPi
+./.venv/lib/python3.13/site-packages/mypyc/lib-rt/misc_ops.c:PyPi
+./.venv/lib/python3.13/site-packages/mypyc/options.py:PyPI
+./.venv/lib/python3.13/site-packages/pathspec-0.12.1.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/pluggy-1.6.0.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/pygments/formatters/html.py:PyPI
+./.venv/lib/python3.13/site-packages/pygments/lexers/arrow.py:pypi
+./.venv/lib/python3.13/site-packages/pytest_cov-7.0.0.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/pytest-9.0.2.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/pyyaml-6.0.3.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/rich-14.2.0.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/ruff-0.14.10.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/shellingham-1.5.4.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/six-1.17.0.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/soupsieve-2.8.3.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/stevedore-5.7.0.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/typer-0.21.0.dist-info/METADATA:pypi
+./.venv/lib/python3.13/site-packages/typing_extensions-4.15.0.dist-info/METADATA:pypi
+./docs/benchmark.md:pypi
+./README.md:pypi
+./release.md:pypi
+./uploads/0457fcf57931fa50/OEBPS/ch02.html:PyPI
+./uploads/0457fcf57931fa50/OEBPS/foreword01.html:PyPI
+./uploads/07028397c09b1a39/OEBPS/ch03.html:pypi
+./uploads/07028397c09b1a39/OEBPS/ch04.html:pypi
+./uploads/07028397c09b1a39/OEBPS/ch09.html:pypi
+./uploads/0b31840d7fb347e6/OEBPS/ch14.xhtml:pypi
+./uploads/0b31840d7fb347e6/OEBPS/index.xhtml:PyPI
+./uploads/0d87637b20e8b7f7/OEBPS/ch08.html:pypi
+./uploads/177c600cd17b89bd/OEBPS/Text/chapter-7.html:PyPI
+./uploads/177c600cd17b89bd/OEBPS/Text/index.html:PyPI
+./uploads/1aafd40a92927004/OEBPS/ch06.html:pypi
+./uploads/1aafd40a92927004/OEBPS/ix01.html:pypi
+./uploads/21f45a8eadc4fecf/OEBPS/ch03.html:PyPI
+./uploads/22fafb104d6d65dd/OEBPS/Text/A.html:pypi
+./uploads/2554bc6f8dd417b1/OEBPS/xhtml/ch17.xhtml:pypi
+./uploads/2554bc6f8dd417b1/OEBPS/xhtml/index.xhtml:PyPI
+./uploads/26990baac98ce72e/OEBPS/ch03.html:PyPI
+./uploads/32696f337fa53b5f/OEBPS/Text/Chapter_7.xhtml:pypi
+./uploads/5d4e59898334c896/OEBPS/ch08.html:pypi
+./uploads/6bf4ee11fe6b2535/OEBPS/ch02.html:PyPi
+./uploads/77d706f1066839d9/OEBPS/text/ch012.xhtml:pypi
+./uploads/89985625bf5bddd5/OEBPS/OEBPS/Text/CH05.htm:pypi
+./uploads/8c45570f359ecb85/OEBPS/ch03.html:pypi
+./uploads/998cc63f3e33a7d8/OEBPS/ch03.html:pypi
+./uploads/d1304cd2f7cc646d/OEBPS/html/510404_1_En_2_Chapter.xhtml:pypi
+./uploads/d1304cd2f7cc646d/OEBPS/html/510404_1_En_6_Chapter.xhtml:pypi
+./uploads/d1304cd2f7cc646d/OEBPS/html/510404_1_En_BookBackmatter_OnlinePDF.xhtml:pypi
+./uploads/d6b319963e54d294/OEBPS/Text/chapter-9.html:PyPI
+./uploads/e3ef1aee0fdd2f48/OEBPS/app01.html:PyPI
+./uploads/e3ef1aee0fdd2f48/OEBPS/ch07.html:pypi
+./uploads/e3ef1aee0fdd2f48/OEBPS/ch11.html:pypi
+./uploads/e3ef1aee0fdd2f48/OEBPS/ix01.html:PyPI
+./uploads/e890384710fae7d6/EPUB/text/ch021.xhtml:PyPI
+./uploads/e890384710fae7d6/EPUB/text/ch050.xhtml:pypi
+./uploads/e890384710fae7d6/EPUB/text/ch051.xhtml:pypi
+./uploads/e890384710fae7d6/EPUB/text/ch052.xhtml:pypi
+./uploads/e9998d1cc5990581/OEBPS/app01.html:pypi
+./uploads/ee578ff876236375/OEBPS/Text/Chapter_10.xhtml:pypi
+./uploads/ee578ff876236375/OEBPS/Text/Preface.xhtml:PyPI
+./uv.lock:pypi
+Binary file ./.venv/bin/ruff matches
+Binary file ./.venv/lib/python3.13/site-packages/__pycache__/pip_requirements_parser.cpython-313.pyc matches
+Binary file ./.venv/lib/python3.13/site-packages/4c842c94c09923bae9e4__mypyc.cpython-313-darwin.so matches
+Binary file ./.venv/lib/python3.13/site-packages/bandit/blacklists/__pycache__/calls.cpython-313.pyc matches
+Binary file ./.venv/lib/python3.13/site-packages/bandit/blacklists/__pycache__/imports.cpython-313.pyc matches
+Binary file ./.venv/lib/python3.13/site-packages/bandit/plugins/__pycache__/markupsafe_markup_xss.cpython-313.pyc matches
+Binary file ./.venv/lib/python3.13/site-packages/bs4/__pycache__/css.cpython-313.pyc matches
+Binary file ./.venv/lib/python3.13/site-packages/bs4/__pycache__/dammit.cpython-313.pyc matches
+Binary file ./.venv/lib/python3.13/site-packages/pygments/formatters/__pycache__/html.cpython-313.pyc matches
+Binary file ./uploads/4efe2a87042297fd/OEBPS/image/B21257_07_16.jpg matches

@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-03-25
+
+### Added
+
+- `parse_ncx()` and `parse_nav()` — NCX (EPUB 2) and NAV (EPUB 3) TOC parsing with fallback for non-standard formats
+- `classify_navpoint()` and `classify_children()` — NavPoint classification (chapter, part, front/back matter, section, subsection, minor)
+- `extract_content()` — content extraction with HTML, plaintext, and markdown output
+- `NavPoint` and `NcxData` dataclasses for structured TOC data
+- `toc` CLI command — display TOC as a classified tree with type tags
+- `content` CLI command — extract section content (`--anchor`, `--file`, `--exclude`, `--parse-to`)
+- Zip bomb detection (compression ratio > 100x) and zip slip prevention
+- `EPUBSAGE_DEBUG` environment variable for full exception tracebacks
+
+### Changed
+
+- Complete API rewrite: replaced class-based architecture with 10 functions and 4 dataclasses
+- CLI rewritten from 15 commands to 5 (`inspect`, `extract`, `validate`, `toc`, `content`)
+- Dependencies: replaced `beautifulsoup4`, `lxml`, `pydantic` with `markdownify`
+- Package structure: flat module layout (9 files in `epubsage/`) replaces nested subdirectories
+- TOC path resolution now handles non-root OPF directories and non-standard NCX filenames
+- Documentation fully rewritten
+
+### Removed
+
+- All old classes: `SimpleEpubProcessor`, `DublinCoreParser`, `EpubStructureParser`, `ContentClassifier`, `SearchService`, `EpubExtractor`
+- All old modules: `core/`, `extractors/`, `processors/`, `services/`, `utils/`
+- Old CLI commands: `info`, `stats`, `chapters`, `metadata`, `images`, `search`, `classify`, `spine`, `manifest`, `chapter`, `list`, `cover`
+- `storage/` module and related exceptions
+- `example_usage.py`
+- Old test suite (to be rewritten for new API)
+
 ## [0.3.0] - 2025-01-09
 
 ### Added
@@ -28,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **CLI Rewrite** - Complete rewrite using Typer and Rich for better UX
-  - New `epub_sage/cli/` directory structure
+  - New `epubsage/cli/` directory structure
   - Commands: info, content, export, images, media, metadata
   - Modern CLI with colors and rich output
 - **Code Modularization** - Split monolithic files into focused modules
@@ -78,9 +109,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Pydantic models for Dublin Core metadata
   - Pydantic models for EPUB structure
 - **CLI**
-  - `epub-sage extract` - Extract EPUB to JSON
-  - `epub-sage info` - Display metadata
-  - `epub-sage list` - List chapters
+  - `epubsage extract` - Extract EPUB to JSON
+  - `epubsage info` - Display metadata
+  - `epubsage list` - List chapters
 - **Utilities**
   - XML namespace handling
   - Text statistics and reading time estimation
@@ -88,7 +119,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Type hints throughout with `py.typed` marker
 - Comprehensive test suite (60+ tests)
 
-[Unreleased]: https://github.com/Abdullah-Wex/epubsage/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Abdullah-Wex/epubsage/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Abdullah-Wex/epubsage/compare/v0.3.0...v0.5.0
 [0.3.0]: https://github.com/Abdullah-Wex/epubsage/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Abdullah-Wex/epubsage/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Abdullah-Wex/epubsage/compare/v0.1.0...v0.1.1

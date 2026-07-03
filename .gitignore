@@ -34,8 +34,13 @@ ENV/
 
 # Extraction temp data
 uploads/
-extracted_book.json
-*.json
+extracted_book.*
+test_xbook.json
+test_hands_on.json
+test.json
+test.html
+test.md
+Untitled-1.json
 
 # IDEs
 .vscode/
@@ -59,3 +64,12 @@ docs/predocs/*
 # Temporary files
 *.ipynb
 cover.png
+
+*Claude*
+
+# Eval/dev scripts
+eval_*.py
+eval_*_report.json
+plan.md
+test*.md
+test*.html
