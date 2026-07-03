@@ -1,0 +1,69 @@
+name: Story (sub-issue)
+description: A sub-issue under an epic, with Given/When/Then acceptance criteria.
+title: "Story: <short action label>"
+labels: ["type:story"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Communication rule:** `frontend [call] → backend [call] → db [infra/3rd-party]`. For integration scenarios, callers flow from higher to lower layer.
+  - type: input
+    id: parent
+    attributes:
+      label: Parent epic
+      placeholder: "#123"
+    validations:
+      required: true
+  - type: textarea
+    id: story
+    attributes:
+      label: Story
+      description: "As a ___ / I want ___ / So that ___"
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Acceptance Criteria
+      description: One Given / When / Then block per scenario.
+      value: |
+        **Scenario 1:**
+        - Given …
+        - When …
+        - Then …
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      options:
+        - "Priority:Security"
+        - "Priority:Reliability"
+        - "Priority:Performance"
+        - "Priority:Scalability"
+        - "Priority:UX"
+        - "Priority:Compliance"
+    validations:
+      required: true
+  - type: dropdown
+    id: space
+    attributes:
+      label: Space
+      description: The single parser-library area this story primarily touches.
+      options:
+        - "space:cli"
+        - "space:parser"
+        - "space:content"
+        - "space:validation"
+        - "space:release"
+        - "space:docs"
+        - "space:tooling"
+    validations:
+      required: true
+  - type: checkboxes
+    id: mirror
+    attributes:
+      label: Sage Reader mirror
+      options:
+        - label: This change affects sage-reader integration — I will also create a mirror story in `Abdullah-Wex/sage-reader`.

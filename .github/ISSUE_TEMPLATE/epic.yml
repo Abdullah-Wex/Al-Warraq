@@ -1,0 +1,82 @@
+name: Epic (parent)
+description: A parent issue grouping related stories. JTBD-shaped.
+title: "Epic: <verb phrase>"
+labels: ["type:epic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Communication rule reminder:** `frontend [call] → backend [call] → db [infra/3rd-party]`. For library integration stories, callers flow from higher to lower layer.
+  - type: textarea
+    id: job
+    attributes:
+      label: Job
+      description: "When ___ / I want to ___ / so that ___"
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: Measurable targets (bulleted KPIs).
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Bulleted list of capabilities included.
+    validations:
+      required: true
+  - type: textarea
+    id: sub_issues
+    attributes:
+      label: Sub-Issues
+      description: One row per child story.
+      value: |
+        | # | Title | Space | Priority | Blocked By | Blocks |
+        |---|-------|-------|----------|------------|--------|
+        |   |       |       |          |            |        |
+    validations:
+      required: true
+  - type: textarea
+    id: order
+    attributes:
+      label: Order
+      description: Numbered implementation sequence with rationale (priority tie-break Security > Reliability > Performance > Scalability > UX > Compliance).
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      options:
+        - "Priority:Security"
+        - "Priority:Reliability"
+        - "Priority:Performance"
+        - "Priority:Scalability"
+        - "Priority:UX"
+        - "Priority:Compliance"
+    validations:
+      required: true
+  - type: checkboxes
+    id: spaces
+    attributes:
+      label: Space(s)
+      description: Apply every parser-library area this epic touches.
+      options:
+        - label: "space:cli"
+        - label: "space:parser"
+        - label: "space:content"
+        - label: "space:validation"
+        - label: "space:release"
+        - label: "space:docs"
+        - label: "space:tooling"
+    validations:
+      required: true
+  - type: checkboxes
+    id: mirror
+    attributes:
+      label: Sage Reader mirror
+      options:
+        - label: This change affects sage-reader integration — I will also create a mirror story in `Abdullah-Wex/sage-reader`.
