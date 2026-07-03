@@ -7,27 +7,27 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from epubsage.storage import get_minio_cache, resolve_output_dir
+from al_warraq.storage import get_minio_cache, resolve_output_dir
 
 
 def test_resolve_output_dir_default(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("EPUBSAGE_OUTPUT_DIR", raising=False)
-    expected = str(Path(tempfile.gettempdir()) / "epubsage")
+    monkeypatch.delenv("AL_WARRAQ_OUTPUT_DIR", raising=False)
+    expected = str(Path(tempfile.gettempdir()) / "al-warraq")
     assert resolve_output_dir() == expected
 
 
 def test_resolve_output_dir_env_override(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
 ) -> None:
-    monkeypatch.setenv("EPUBSAGE_OUTPUT_DIR", str(tmp_path))
+    monkeypatch.setenv("AL_WARRAQ_OUTPUT_DIR", str(tmp_path))
     assert resolve_output_dir() == str(tmp_path)
 
 
 def test_resolve_output_dir_empty_env_falls_back(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("EPUBSAGE_OUTPUT_DIR", "")
-    expected = str(Path(tempfile.gettempdir()) / "epubsage")
+    monkeypatch.setenv("AL_WARRAQ_OUTPUT_DIR", "")
+    expected = str(Path(tempfile.gettempdir()) / "al-warraq")
     assert resolve_output_dir() == expected
 
 

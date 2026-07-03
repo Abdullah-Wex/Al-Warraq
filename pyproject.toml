@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "epubsage"
-version = "0.7.1"
-description = "DEPRECATED: renamed to al-warraq (pip install al-warraq). Lightweight EPUB inspection — version detection and TOC discovery."
+name = "Al-Warraq"
+version = "1.0.0"
+description = "Al-Warraq (الورّاق) — lightweight EPUB inspection: version detection, TOC discovery, content extraction, and BM25 search."
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
@@ -33,17 +33,17 @@ dependencies = [
 ]
 
 [project.scripts]
-epubsage = "epubsage.cli:cli_entry"
+al-warraq = "al_warraq.cli:cli_entry"
 
 [project.optional-dependencies]
 minio = ["minio>=7.2.0"]
 
 [project.urls]
-Homepage = "https://github.com/Abdullah-Wex/epubsage"
-Repository = "https://github.com/Abdullah-Wex/epubsage"
-Documentation = "https://github.com/Abdullah-Wex/epubsage#readme"
-Issues = "https://github.com/Abdullah-Wex/epubsage/issues"
-Changelog = "https://github.com/Abdullah-Wex/epubsage/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/Abdullah-Wex/Al-Warraq"
+Repository = "https://github.com/Abdullah-Wex/Al-Warraq"
+Documentation = "https://github.com/Abdullah-Wex/Al-Warraq#readme"
+Issues = "https://github.com/Abdullah-Wex/Al-Warraq/issues"
+Changelog = "https://github.com/Abdullah-Wex/Al-Warraq/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
@@ -55,10 +55,10 @@ dev = [
 ]
 
 [tool.hatch.build]
-packages = ["epubsage"]
+packages = ["al_warraq"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/epubsage", "/README.md", "/LICENSE", "/pyproject.toml", "/CHANGELOG.md"]
+include = ["/al_warraq", "/README.md", "/LICENSE", "/pyproject.toml", "/CHANGELOG.md"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["epubsage"]
+packages = ["al_warraq"]

@@ -8,7 +8,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in EpubSage, please report it by emailing:
+If you discover a security vulnerability in Al-Warraq, please report it by emailing:
 
 **alshreef15xm@gmail.com**
 
@@ -35,7 +35,7 @@ We appreciate responsible disclosure and will credit reporters in release notes 
 
 ## Security Best Practices
 
-When using EpubSage:
+When using Al-Warraq:
 
 - Only process EPUB files from trusted sources
 - Validate file extensions before processing

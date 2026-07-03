@@ -1,4 +1,4 @@
-"""epubsage CLI — inspect EPUB files."""
+"""Al-Warraq CLI — inspect EPUB files."""
 
 import os
 from pathlib import Path
@@ -24,9 +24,9 @@ from .opf import parse_opf
 from .search import search as run_search
 from .storage import resolve_output_dir
 
-_DEBUG = os.environ.get("EPUBSAGE_DEBUG", "").lower() in ("1", "true")
+_DEBUG = os.environ.get("AL_WARRAQ_DEBUG", "").lower() in ("1", "true")
 app = typer.Typer(
-    help="epubsage — lightweight EPUB inspection",
+    help="Al-Warraq (الورّاق) — lightweight EPUB inspection",
     pretty_exceptions_enable=_DEBUG,
 )
 console = Console()
@@ -45,7 +45,7 @@ def _require_path(ctx: typer.Context, path: Path | None) -> Path:
 
 def version_callback(value: bool) -> None:
     if value:
-        console.print(f"epubsage {__version__}")
+        console.print(f"al-warraq {__version__}")
         raise typer.Exit()
 
 
@@ -56,7 +56,7 @@ def main(
         help="Show version.",
     ),
 ) -> None:
-    """epubsage — lightweight EPUB inspection."""
+    """Al-Warraq (الورّاق) — lightweight EPUB inspection."""
 
 
 @app.command()

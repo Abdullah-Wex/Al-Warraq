@@ -1,9 +1,9 @@
-# Makefile for EpubSage
+# Makefile for Al-Warraq
 
 .PHONY: help install format test lint typecheck security quality clean
 
 help:
-	@echo "EpubSage - Development Commands"
+	@echo "Al-Warraq - Development Commands"
 	@echo ""
 	@echo "  make install     Install dependencies"
 	@echo "  make format      Format code"
@@ -18,17 +18,17 @@ install:
 	uv sync
 
 format:
-	uv run ruff format epubsage
-	uv run ruff check --fix epubsage
+	uv run ruff format al_warraq
+	uv run ruff check --fix al_warraq
 
 lint:
-	uv run ruff check epubsage
+	uv run ruff check al_warraq
 
 typecheck:
-	uv run mypy epubsage
+	uv run mypy al_warraq
 
 security:
-	uv run bandit -r epubsage -q
+	uv run bandit -r al_warraq -q
 
 test:
 	PYTHONPATH="$$PWD" uv run pytest tests/ -v

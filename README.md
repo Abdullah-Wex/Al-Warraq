@@ -1,11 +1,13 @@
-# EpubSage
+<p align="center"><img src="docs/branding/emblem.svg" width="150" alt="Al-Warraq emblem"></p>
 
-> ⚠️ **This package has been renamed to [al-warraq](https://pypi.org/project/al-warraq/).**
-> `epubsage` will receive no further updates. Migrate with:
-> `pip install al-warraq` and `import al_warraq`.
+# Al-Warraq
 
-[![PyPI version](https://img.shields.io/pypi/v/epubsage.svg)](https://pypi.org/project/epubsage/)
-[![Python versions](https://img.shields.io/pypi/pyversions/epubsage.svg)](https://pypi.org/project/epubsage/)
+**الورّاق** — the golden-age book craftsman, reborn as a library.
+
+Ancient craft | Digital knowledge | Libraries | Books | Manuscripts
+
+[![PyPI version](https://img.shields.io/pypi/v/al-warraq.svg)](https://pypi.org/project/al-warraq/)
+[![Python versions](https://img.shields.io/pypi/pyversions/al-warraq.svg)](https://pypi.org/project/al-warraq/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Lightweight EPUB inspection library — version detection, TOC discovery, and content extraction.
@@ -30,13 +32,15 @@ Lightweight EPUB inspection library — version detection, TOC discovery, and co
 ## Installation
 
 ```bash
-pip install epubsage
+pip install al-warraq
 ```
+
+> Note: the install name is `al-warraq`, the import name is `al_warraq` (Python does not allow hyphens in imports).
 
 Or with `uv`:
 
 ```bash
-uv add epubsage
+uv add al-warraq
 ```
 
 ## Quick Start
@@ -44,7 +48,7 @@ uv add epubsage
 ### Python
 
 ```python
-from epubsage import inspect_epub
+from al_warraq import inspect_epub
 
 info = inspect_epub("book.epub")
 
@@ -53,23 +57,23 @@ print(f"Version: EPUB {info.version}")
 print(f"TOC:     {info.toc.toc_type}")
 ```
 
-![Quick Start](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/python-quickstart.png?raw=true)
+![Quick Start](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/python-quickstart.png?raw=true)
 
 ### Command Line
 
 ```bash
-epubsage inspect book.epub
+al-warraq inspect book.epub
 ```
 
-![CLI Inspect](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/cli-inspect.png?raw=true)
+![CLI Inspect](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/cli-inspect.png?raw=true)
 
 ## CLI Commands
 
 ```bash
-epubsage --help
+al-warraq --help
 ```
 
-![CLI Help](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/cli-help.png?raw=true)
+![CLI Help](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/cli-help.png?raw=true)
 
 | Command | Description |
 |---------|-------------|
@@ -84,7 +88,7 @@ epubsage --help
 ### Shell Auto-Completion
 
 ```bash
-epubsage --install-completion
+al-warraq --install-completion
 ```
 
 Supported shells: **Bash**, **Zsh**, **Fish**, **PowerShell**
@@ -122,13 +126,13 @@ Supported shells: **Bash**, **Zsh**, **Fish**, **PowerShell**
 ## Architecture
 
 ```
-epubsage/
+al_warraq/
 ├── __init__.py     # Public API: inspect_epub + re-exports
 ├── classify.py     # classify_navpoint, classify_children
 ├── cli.py          # CLI: inspect, extract, validate, toc, content
 ├── content.py      # extract_content (HTML, plaintext, markdown)
 ├── epub.py         # hash_epub, extract_epub, find_opf
-├── exceptions.py   # EpubSageError, InvalidEpubError
+├── exceptions.py   # AlWarraqError, InvalidEpubError
 ├── nav.py          # parse_nav (EPUB 3 NAV)
 ├── ncx.py          # parse_ncx, NavPoint, NcxData
 └── opf.py          # parse_opf, EpubInfo, TocInfo
@@ -137,8 +141,8 @@ epubsage/
 ## Development
 
 ```bash
-git clone https://github.com/Abdullah-Wex/epubsage.git
-cd epubsage
+git clone https://github.com/Abdullah-Wex/Al-Warraq.git
+cd Al-Warraq
 uv sync
 ```
 

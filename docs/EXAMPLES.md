@@ -1,13 +1,13 @@
-# EpubSage Examples
+# Al-Warraq Examples
 
-Practical examples for EpubSage v0.5.0.
+Practical examples for Al-Warraq v0.5.0.
 
 ---
 
 ## Inspect a Book
 
 ```python
-from epubsage import inspect_epub
+from al_warraq import inspect_epub
 
 info = inspect_epub("book.epub")
 
@@ -17,14 +17,14 @@ print(f"TOC:     {info.toc.toc_type}")
 print(f"OPF:     {info.opf_path}")
 ```
 
-![Quick Start](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/python-quickstart.png?raw=true)
+![Quick Start](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/python-quickstart.png?raw=true)
 
 ---
 
 ## Parse TOC and Classify
 
 ```python
-from epubsage import inspect_epub, parse_ncx, classify_navpoint, classify_children
+from al_warraq import inspect_epub, parse_ncx, classify_navpoint, classify_children
 
 info = inspect_epub("book.epub")
 ncx = parse_ncx(str(info.toc.ncx_path))
@@ -42,12 +42,12 @@ for pt in ncx.nav_points[:5]:
         print(f"  [{child.nav_type}] {child.label}")
 ```
 
-![TOC Classification](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/python-toc.png?raw=true)
+![TOC Classification](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/python-toc.png?raw=true)
 
 For EPUB 3 files with NAV instead of NCX:
 
 ```python
-from epubsage import inspect_epub, parse_nav, classify_navpoint, classify_children
+from al_warraq import inspect_epub, parse_nav, classify_navpoint, classify_children
 
 info = inspect_epub("book.epub")
 nav_points = parse_nav(str(info.toc.toc_path))
@@ -64,7 +64,7 @@ classify_children(nav_points)
 ### HTML (default)
 
 ```python
-from epubsage import inspect_epub, parse_ncx, extract_content
+from al_warraq import inspect_epub, parse_ncx, extract_content
 
 info = inspect_epub("book.epub")
 ncx = parse_ncx(str(info.toc.ncx_path))
@@ -100,7 +100,7 @@ md = extract_content(
 print(md[:300])
 ```
 
-![Content Extraction](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/python-content.png?raw=true)
+![Content Extraction](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/python-content.png?raw=true)
 
 ### Excluding Sections
 
@@ -118,7 +118,7 @@ text = extract_content(
 ## Walk the TOC Tree
 
 ```python
-from epubsage import inspect_epub, parse_ncx, classify_navpoint, classify_children
+from al_warraq import inspect_epub, parse_ncx, classify_navpoint, classify_children
 
 info = inspect_epub("book.epub")
 ncx = parse_ncx(str(info.toc.ncx_path))
@@ -148,7 +148,7 @@ walk(ncx.nav_points)
 ```bash
 for file in *.epub; do
     echo "=== $file ==="
-    epubsage inspect "$file"
+    al-warraq inspect "$file"
     echo
 done
 ```
@@ -158,7 +158,7 @@ done
 ```bash
 for file in *.epub; do
     name="${file%.epub}"
-    epubsage toc "$file" > "${name}_toc.txt"
+    al-warraq toc "$file" > "${name}_toc.txt"
 done
 ```
 
@@ -166,7 +166,7 @@ done
 
 ```bash
 for file in ~/Books/*.epub; do
-    if epubsage validate "$file" 2>/dev/null; then
+    if al-warraq validate "$file" 2>/dev/null; then
         echo "OK: $file"
     else
         echo "INVALID: $file"
@@ -179,7 +179,7 @@ done
 ## Error Handling
 
 ```python
-from epubsage import inspect_epub, InvalidEpubError
+from al_warraq import inspect_epub, InvalidEpubError
 
 try:
     info = inspect_epub("book.epub")

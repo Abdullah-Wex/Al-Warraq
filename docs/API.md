@@ -1,11 +1,11 @@
-# EpubSage API Reference
+# Al-Warraq API Reference
 
-Complete Python API documentation for EpubSage v0.5.0.
+Complete Python API documentation for Al-Warraq v0.5.0.
 
 ## Quick Start
 
 ```python
-from epubsage import inspect_epub
+from al_warraq import inspect_epub
 
 info = inspect_epub("book.epub")
 print(f"Title:   {info.title}")
@@ -13,7 +13,7 @@ print(f"Version: EPUB {info.version}")
 print(f"TOC:     {info.toc.toc_type}")
 ```
 
-![Quick Start](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/python-quickstart.png?raw=true)
+![Quick Start](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/python-quickstart.png?raw=true)
 
 ---
 
@@ -24,9 +24,9 @@ print(f"TOC:     {info.toc.toc_type}")
 One-step inspection: hash, extract, parse OPF, detect TOC.
 
 ```python
-from epubsage import inspect_epub, EpubInfo
+from al_warraq import inspect_epub, EpubInfo
 
-info: EpubInfo = inspect_epub(epub_path: str, output_dir: str = "/tmp/epubsage")
+info: EpubInfo = inspect_epub(epub_path: str, output_dir: str = "/tmp/al-warraq")
 ```
 
 **Parameters:**
@@ -44,7 +44,7 @@ info: EpubInfo = inspect_epub(epub_path: str, output_dir: str = "/tmp/epubsage")
 SHA-256 hash of the EPUB file (first 16 hex chars).
 
 ```python
-from epubsage import hash_epub
+from al_warraq import hash_epub
 
 file_hash: str = hash_epub(epub_path: str)
 ```
@@ -56,7 +56,7 @@ file_hash: str = hash_epub(epub_path: str)
 Extract EPUB ZIP to `output_dir/<hash>/`.
 
 ```python
-from epubsage import extract_epub
+from al_warraq import extract_epub
 from pathlib import Path
 
 extract_dir: Path = extract_epub(epub_path: str, output_dir: str)
@@ -71,7 +71,7 @@ extract_dir: Path = extract_epub(epub_path: str, output_dir: str)
 Find the `.opf` file in an extracted EPUB directory.
 
 ```python
-from epubsage import find_opf
+from al_warraq import find_opf
 from pathlib import Path
 
 opf_path: Path = find_opf(epub_dir: str)
@@ -86,7 +86,7 @@ Checks common paths (`content.opf`, `OEBPS/content.opf`, `OPS/content.opf`) then
 Parse OPF file for version and TOC type.
 
 ```python
-from epubsage import parse_opf, EpubInfo
+from al_warraq import parse_opf, EpubInfo
 
 info: EpubInfo = parse_opf(opf_path: str, epub_dir: str | None = None)
 ```
@@ -98,7 +98,7 @@ info: EpubInfo = parse_opf(opf_path: str, epub_dir: str | None = None)
 Parse an NCX file for document title and navigation map.
 
 ```python
-from epubsage import parse_ncx, NcxData
+from al_warraq import parse_ncx, NcxData
 
 ncx: NcxData = parse_ncx(ncx_path: str)
 print(ncx.doc_title)
@@ -113,7 +113,7 @@ for pt in ncx.nav_points:
 Parse EPUB 3 NAV XHTML for TOC entries.
 
 ```python
-from epubsage import parse_nav, NavPoint
+from al_warraq import parse_nav, NavPoint
 
 nav_points: list[NavPoint] = parse_nav(nav_path: str)
 ```
@@ -127,7 +127,7 @@ Returns the same `NavPoint` type as `parse_ncx`.
 Classify a single NavPoint by its label.
 
 ```python
-from epubsage import classify_navpoint
+from al_warraq import classify_navpoint
 
 nav_type: str = classify_navpoint(nav_point)
 # Returns: "chapter" | "part" | "front_matter" | "back_matter" | "section"
@@ -140,7 +140,7 @@ nav_type: str = classify_navpoint(nav_point)
 Classify children of already-classified NavPoints by nesting depth. Mutates `nav_type` in place.
 
 ```python
-from epubsage import classify_children
+from al_warraq import classify_children
 
 classify_children(points: list[NavPoint])
 # Depth 1 children -> "section"
@@ -155,7 +155,7 @@ classify_children(points: list[NavPoint])
 Extract HTML content for a TOC entry by anchor reference.
 
 ```python
-from epubsage import extract_content
+from al_warraq import extract_content
 
 content: str = extract_content(
     html_path: str,
@@ -242,12 +242,12 @@ Parsed NCX file data.
 ## Exceptions
 
 ```python
-from epubsage import EpubSageError, InvalidEpubError
+from al_warraq import AlWarraqError, InvalidEpubError
 ```
 
 | Exception | Description |
 |-----------|-------------|
-| `EpubSageError` | Base exception for all epubsage errors |
+| `AlWarraqError` | Base exception for all Al-Warraq errors |
 | `InvalidEpubError` | EPUB file is invalid or corrupt |
 
 ---
@@ -271,7 +271,7 @@ These are **not errors** (valid states):
 - `title = None` — no title in metadata
 
 ```python
-from epubsage import inspect_epub, InvalidEpubError
+from al_warraq import inspect_epub, InvalidEpubError
 
 try:
     info = inspect_epub("book.epub")

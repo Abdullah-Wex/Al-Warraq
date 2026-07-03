@@ -1,4 +1,4 @@
-# Contributing to EpubSage
+# Contributing to Al-Warraq
 
 Thanks for your interest in contributing!
 
@@ -11,8 +11,8 @@ Open a GitHub Issue. Please include:
 ## Development setup
 
 ```bash
-git clone https://github.com/Abdullah-Wex/epubsage.git
-cd epubsage
+git clone https://github.com/Abdullah-Wex/Al-Warraq.git
+cd Al-Warraq
 uv sync
 uv run pytest
 ```
@@ -23,15 +23,15 @@ uv run pytest
 2. Make your changes. Keep commits focused — small, reviewable diffs are easier to merge.
 3. Run quality gates before pushing:
    ```bash
-   uv run ruff check epubsage/ tests/
-   uv run mypy epubsage/
+   uv run ruff check al_warraq/ tests/
+   uv run mypy al_warraq/
    uv run pytest tests/ -v
    ```
 4. Open a Pull Request against `main`.
 
 ## Coding standards
 
-- Follow the existing module structure (flat `epubsage/` package, no nested subpackages).
+- Follow the existing module structure (flat `al_warraq/` package, no nested subpackages).
 - Add type hints to public functions.
 - Add tests for new behavior — both happy path and edge cases.
 - For parsing changes, include a malformed-input test.

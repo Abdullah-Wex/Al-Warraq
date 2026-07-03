@@ -29,7 +29,7 @@ jobs:
         run: uv sync
 
       - name: Run tests with coverage
-        run: uv run pytest --cov=epubsage --cov-report=xml --cov-report=term-missing
+        run: uv run pytest --cov=al_warraq --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.13'
@@ -74,4 +74,4 @@ jobs:
         run: uv sync
 
       - name: Run mypy
-        run: uv run mypy epubsage --ignore-missing-imports
+        run: uv run mypy al_warraq --ignore-missing-imports

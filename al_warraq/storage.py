@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from minio import Minio  # type: ignore[import-not-found]
 
-_ENV_OUTPUT_DIR = "EPUBSAGE_OUTPUT_DIR"
+_ENV_OUTPUT_DIR = "AL_WARRAQ_OUTPUT_DIR"
 _MINIO_ENV = (
     "MINIO_ENDPOINT",
     "MINIO_ACCESS_KEY",
@@ -20,9 +20,9 @@ _MINIO_ENV = (
 
 
 def resolve_output_dir() -> str:
-    """Return ``EPUBSAGE_OUTPUT_DIR`` if set, else ``<tempdir>/epubsage``."""
+    """Return ``AL_WARRAQ_OUTPUT_DIR`` if set, else ``<tempdir>/al-warraq``."""
     return os.environ.get(_ENV_OUTPUT_DIR) or str(
-        Path(tempfile.gettempdir()) / "epubsage"
+        Path(tempfile.gettempdir()) / "al-warraq"
     )
 
 
