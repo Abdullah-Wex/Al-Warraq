@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "epubsage"
-version = "0.7.0"
-description = "Lightweight EPUB inspection — version detection and TOC discovery."
+version = "0.7.1"
+description = "DEPRECATED: renamed to al-warraq (pip install al-warraq). Lightweight EPUB inspection — version detection and TOC discovery."
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"

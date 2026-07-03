@@ -1,4 +1,7 @@
-"""epubsage — lightweight EPUB inspection library."""
+"""epubsage — lightweight EPUB inspection library.
+
+Deprecated: renamed to al-warraq (``pip install al-warraq``, ``import al_warraq``).
+"""
 
 from .classify import (
     classify_children,
@@ -16,7 +19,16 @@ from .opf import EpubInfo, TocInfo, parse_opf
 from .search import SearchHit, build_search_index, search, tokenize
 from .storage import resolve_output_dir
 
-__version__ = "0.7.0"
+__version__ = "0.7.1"
+
+import warnings as _warnings
+
+_warnings.warn(
+    "epubsage has been renamed: pip install al-warraq, import al_warraq. "
+    "The epubsage package will receive no further updates.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 __all__ = [
     "EpubInfo",

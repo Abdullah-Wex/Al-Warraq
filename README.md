@@ -1,5 +1,9 @@
 # EpubSage
 
+> ⚠️ **This package has been renamed to [al-warraq](https://pypi.org/project/al-warraq/).**
+> `epubsage` will receive no further updates. Migrate with:
+> `pip install al-warraq` and `import al_warraq`.
+
 [![PyPI version](https://img.shields.io/pypi/v/epubsage.svg)](https://pypi.org/project/epubsage/)
 [![Python versions](https://img.shields.io/pypi/pyversions/epubsage.svg)](https://pypi.org/project/epubsage/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
