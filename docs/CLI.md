@@ -1,10 +1,10 @@
 # Al-Warraq CLI Reference
 
-Command-line interface documentation for Al-Warraq v0.5.0.
+Command-line interface documentation for Al-Warraq v1.0.0.
 
 ## Overview
 
-Al-Warraq provides 5 commands for EPUB inspection from the terminal.
+Al-Warraq provides 6 commands for EPUB inspection from the terminal.
 
 ```bash
 al-warraq --help
@@ -22,6 +22,25 @@ al-warraq --help
 | `--help` | Show help message |
 
 ---
+
+## Output contract
+
+Every command follows the same contract:
+
+| Rule | Behavior |
+|------|----------|
+| `--json` | Available on every command — prints a single JSON object to stdout, unstyled |
+| Streams | Results go to **stdout**; errors, warnings, and notices go to **stderr** |
+| Exit codes | `0` success · `1` operational failure (e.g. invalid EPUB — `validate` exits 1) · `2` usage error |
+| Errors | One red line + a `--help` hint — never a full help dump |
+| `content` | Prints pure data to stdout, so `al-warraq content … > chapter.md` just works |
+| Color | Auto-disabled when piped; honors `NO_COLOR` |
+
+```bash
+al-warraq inspect book.epub --json | jq .version
+al-warraq search book.epub "transformers" --json | jq '.results[0].anchor'
+al-warraq validate book.epub --json && echo "valid"
+```
 
 ## Commands
 
@@ -180,9 +199,8 @@ al-warraq content book.epub --anchor "ch01_intro" --exclude "footnotes,bibliogra
 | Code | Meaning |
 |------|---------|
 | 0 | Success |
-| 1 | Error (invalid EPUB, missing argument, anchor not found) |
-
----
+| 1 | Operational failure (invalid EPUB, not found, no TOC) |
+| 2 | Usage error (missing/invalid arguments) |
 
 ## See Also
 
