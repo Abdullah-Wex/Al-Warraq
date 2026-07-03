@@ -7,8 +7,8 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from epubsage import epub as epub_mod
-from epubsage.epub import extract_epub, hash_epub
+from al_warraq import epub as epub_mod
+from al_warraq.epub import extract_epub, hash_epub
 
 
 def _make_minimal_epub(tmp_path: Path) -> Path:

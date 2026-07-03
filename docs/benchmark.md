@@ -1,6 +1,6 @@
 # EPUB Ecosystem Benchmark
 
-A cross-library / cross-platform feature breakdown of the EPUB tooling space, with `epubsage` positioned against it. Focus: **every relevant capability in the ecosystem**, not only features `epubsage` has.
+A cross-library / cross-platform feature breakdown of the EPUB tooling space, with `al-warraq` positioned against it. Focus: **every relevant capability in the ecosystem**, not only features `al-warraq` has.
 
 Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
@@ -10,7 +10,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | # | Name | Language | Category | Scope |
 |---|------|----------|----------|-------|
-| 1 | **epubsage** (us) | Python | Inspection lib + CLI | Read-only, structural + content extraction |
+| 1 | **al-warraq** (us) | Python | Inspection lib + CLI | Read-only, structural + content extraction |
 | 2 | EbookLib | Python | Full read/write lib | EPUB2/3 authoring + parsing |
 | 3 | epub-meta | Python | Metadata-only lib | Zero-dep metadata + TOC reader |
 | 4 | epub-toc | Python | TOC lib | Hierarchical TOC → JSON |
@@ -39,7 +39,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | EPUB 2 | EPUB 3 | MOBI | AZW3 | FB2 | KF8 | PDF | Other |
 |---|---|---|---|---|---|---|---|---|
-| epubsage | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | — |
+| al-warraq | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | — |
 | EbookLib | ✅ | ✅ | 🟡 (Kindle basic) | ❌ | ❌ | ❌ | ❌ | — |
 | epub-meta | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | — |
 | epub-toc | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | — |
@@ -59,7 +59,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | Read | Write | Create from scratch | Modify in place | Validate |
 |---|---|---|---|---|---|
-| epubsage | ✅ | ❌ | ❌ | ❌ | 🟡 (structural) |
+| al-warraq | ✅ | ❌ | ❌ | ❌ | 🟡 (structural) |
 | EbookLib | ✅ | ✅ | ✅ | ✅ | ❌ |
 | epub-meta | ✅ | ❌ | ❌ | ❌ | ❌ |
 | epub-toc | ✅ | ❌ | ❌ | ❌ | ❌ |
@@ -77,7 +77,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | Dublin Core | Custom OPF meta | Cover image | Identifiers (ISBN/UUID) | Series | Raw OPF access |
 |---|---|---|---|---|---|---|
-| epubsage | 🟡 (title only) | ❌ | ❌ | ❌ | ❌ | ✅ (opf_path) |
+| al-warraq | 🟡 (title only) | ❌ | ❌ | ❌ | ❌ | ✅ (opf_path) |
 | EbookLib | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ |
 | epub-meta | ✅ | 🟡 | ✅ (base64) | ✅ | ❌ | ✅ |
 | epub-toc | ✅ | ❌ | ✅ (path) | ✅ | ✅ | ❌ |
@@ -94,7 +94,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | Manifest iteration | Spine order | Item by ID | Item by media-type | Package-level view |
 |---|---|---|---|---|---|
-| epubsage | 🟡 (internal only) | ❌ | ❌ | 🟡 | ❌ |
+| al-warraq | 🟡 (internal only) | ❌ | ❌ | 🟡 | ❌ |
 | EbookLib | ✅ | ✅ | ✅ | ✅ | ✅ |
 | epub-utils | ✅ | ✅ | ✅ | ✅ | ✅ |
 | fast-ebook | ✅ | ✅ | ✅ (78× faster) | ✅ | ✅ |
@@ -108,7 +108,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | NCX parse | NAV parse | Hierarchical tree | Classification (chapter/part/FM/BM) | JSON export | Flat-TOC grouping |
 |---|---|---|---|---|---|---|
-| **epubsage** | ✅ | ✅ | ✅ | ✅ (3-signal heuristic) | ❌ | ✅ (chapters under parts) |
+| **al-warraq** | ✅ | ✅ | ✅ | ✅ (3-signal heuristic) | ❌ | ✅ (chapters under parts) |
 | EbookLib | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
 | epub-meta | 🟡 | 🟡 | ✅ (by level) | ❌ | ❌ | ❌ |
 | epub-toc | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
@@ -126,7 +126,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | Raw HTML | Plaintext | Markdown | By anchor slice | Boundary detection | Exclude ranges | Preserve `<pre>` |
 |---|---|---|---|---|---|---|---|
-| **epubsage** | ✅ | ✅ | ✅ | ✅ | ✅ (TOC-aware) | ✅ | ✅ |
+| **al-warraq** | ✅ | ✅ | ✅ | ✅ | ✅ (TOC-aware) | ✅ | ✅ |
 | EbookLib | ✅ | 🟡 (+BS4) | ❌ | ❌ | ❌ | ❌ | — |
 | epub-meta | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | — |
 | epub-toc | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | — |
@@ -145,7 +145,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | Pagination | Fixed layout | Reflowable | CFI | Locator | Media overlays (SMIL) |
 |---|---|---|---|---|---|---|
-| epubsage | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| al-warraq | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | epub.js | ✅ (CSS multi-column) | ✅ | ✅ | ✅ | 🟡 | 🟡 |
 | foliate-js | ✅ (bisect-accurate) | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Readium | ✅ | ✅ | ✅ | ✅ | ✅ (Readium Locator) | ✅ |
@@ -157,7 +157,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | Full-text search | TTS | Highlights / annotations | Bookmarks | Themes / CSS | Dictionary / translate |
 |---|---|---|---|---|---|---|
-| epubsage | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| al-warraq | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | epub.js | 🟡 (external) | ❌ | 🟡 (plugin) | 🟡 | ✅ | ❌ |
 | foliate-js | ✅ (Intl.Collator/Segmenter) | ✅ (SSML output) | ✅ (JSON-stored) | ✅ | ✅ | ✅ |
 | Readium / Thorium | ✅ | ✅ | ✅ | ✅ | ✅ (Readium CSS) | 🟡 |
@@ -168,7 +168,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | Zip-bomb guard | Zip-slip guard | Size cap | Fail-fast errors | DRM / LCP | Decryption |
 |---|---|---|---|---|---|---|
-| **epubsage** | ✅ (>100×) | ✅ | ✅ (2 GB) | ✅ | ❌ | ❌ |
+| **al-warraq** | ✅ (>100×) | ✅ | ✅ (2 GB) | ✅ | ❌ | ❌ |
 | EbookLib | ❌ | ❌ | ❌ | 🟡 | ❌ | ❌ |
 | epub-meta | ❌ | ❌ | ❌ | 🟡 | ❌ | ❌ |
 | epub-utils | ❌ | ❌ | ❌ | 🟡 | ❌ | ❌ |
@@ -183,7 +183,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | EPUB → MD | EPUB → HTML | EPUB → PDF | EPUB → TXT | Non-EPUB → EPUB | CSS embedding | Font embed |
 |---|---|---|---|---|---|---|---|
-| epubsage | ✅ (per section) | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| al-warraq | ✅ (per section) | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
 | fast-ebook | ✅ (whole book) | 🟡 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | EbookLib | ❌ | ✅ | ❌ | 🟡 | ✅ | ✅ | ✅ |
 | Calibre | ✅ | ✅ | ✅ | ✅ | ✅ (25 fmts) | ✅ | ✅ |
@@ -193,7 +193,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | Python API | CLI | JS/TS API | Rust API | REST / MCP | Other bindings |
 |---|---|---|---|---|---|---|
-| **epubsage** | ✅ | ✅ (5 cmds, Typer+Rich) | ❌ | ❌ | ❌ | — |
+| **al-warraq** | ✅ | ✅ (5 cmds, Typer+Rich) | ❌ | ❌ | ❌ | — |
 | EbookLib | ✅ | ❌ | ❌ | ❌ | ❌ | — |
 | epub-meta | ✅ | ❌ | ❌ | ❌ | ❌ | — |
 | epub-utils | ✅ | ✅ (rich tables, XML highlight) | ❌ | ❌ | ❌ | — |
@@ -209,7 +209,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | External deps | Lines of code | Install size | Runtime |
 |---|---|---|---|---|
-| **epubsage** | `typer`, `markdownify` (rest stdlib) | ~1 k | small | Python 3.12+ |
+| **al-warraq** | `typer`, `markdownify` (rest stdlib) | ~1 k | small | Python 3.12+ |
 | epub-meta | **zero** | ~600 | tiny | Py 2/3 |
 | EbookLib | `lxml`, `six` | ~4 k | medium | Py 3 |
 | epub-toc | `lxml` | ~1 k | small | Py 3 |
@@ -225,7 +225,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | Claim / approach |
 |---|---|
-| epubsage | stdlib XML + ZIP; no benchmarks published. Aimed at inspection, not hot paths. |
+| al-warraq | stdlib XML + ZIP; no benchmarks published. Aimed at inspection, not hot paths. |
 | fast-ebook | Rust core via PyO3. Claims **3× faster** full read/extract, **78× faster** `get_item_with_id` vs EbookLib. |
 | EbookLib | `lxml`-based; fine for authoring, slow on large books. |
 | epub (Rust) | native Rust speed; HashMap resource index. |
@@ -238,7 +238,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Library | License |
 |---|---|
-| epubsage | (project-defined) |
+| al-warraq | (project-defined) |
 | EbookLib | AGPL-3.0 |
 | epub-meta | MIT |
 | epub-toc | MIT |
@@ -259,7 +259,7 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 
 | Tool | Strongest at |
 |---|---|
-| **epubsage** | TOC **semantic classification**, anchor-scoped content slicing with TOC-boundary awareness, multi-format extraction (HTML/TXT/MD) at section granularity, hardened ZIP safety. |
+| **al-warraq** | TOC **semantic classification**, anchor-scoped content slicing with TOC-boundary awareness, multi-format extraction (HTML/TXT/MD) at section granularity, hardened ZIP safety. |
 | EbookLib | De-facto Python authoring, plugin system, TOC/NCX/NAV generation. |
 | epub-meta | Zero-dep metadata snapshot in 5 lines. |
 | epub-toc | TOC → structured JSON pipeline. |
@@ -273,14 +273,14 @@ Legend: ✅ full · 🟡 partial / limited · ❌ none · — not applicable
 | Calibre | Universal library manager + 25-format conversion. |
 | Pandoc | Format-matrix conversion hub. |
 
-## 4. Where `epubsage` is Unique
+## 4. Where `al-warraq` is Unique
 
 1. **TOC classification** with chapter/part/front-matter/back-matter/section/subsection/minor tags — **nothing else in this roster does this**.
-2. **Anchor-scoped content extraction with boundary detection** — slices exactly one TOC entry out of a file, respecting sibling TOC anchors, supporting child anchors as non-boundaries and excludes. epub.js/foliate-js/Readium have CFI ranges but require explicit start/end; `epubsage` infers them from TOC structure.
+2. **Anchor-scoped content extraction with boundary detection** — slices exactly one TOC entry out of a file, respecting sibling TOC anchors, supporting child anchors as non-boundaries and excludes. epub.js/foliate-js/Readium have CFI ranges but require explicit start/end; `al-warraq` infers them from TOC structure.
 3. **Triple output format per section** (HTML / plaintext / Markdown) at the same granularity.
 4. **Fail-fast ZIP hardening** (bomb + slip + 2 GB cap) baked into a parser lib — rare outside Readium/Calibre.
 
-## 5. Where `epubsage` Is Behind
+## 5. Where `al-warraq` Is Behind
 
 - No write / authoring path (EbookLib, fast-ebook, @smoores/epub, epub-builder).
 - No full metadata API beyond title (every other lib).

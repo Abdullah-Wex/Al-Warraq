@@ -1,6 +1,6 @@
-"""epubsage — lightweight EPUB inspection library.
+"""Al-Warraq (الورّاق) — lightweight EPUB inspection library.
 
-Deprecated: renamed to al-warraq (``pip install al-warraq``, ``import al_warraq``).
+Install: ``pip install al-warraq`` · Import: ``import al_warraq``
 """
 
 from .classify import (
@@ -12,27 +12,18 @@ from .classify import (
 )
 from .content import Section, extract_all_sections, extract_content
 from .epub import extract_epub, find_opf, hash_epub
-from .exceptions import EpubSageError, InvalidEpubError
+from .exceptions import AlWarraqError, InvalidEpubError
 from .nav import parse_nav
 from .ncx import NavPoint, NcxData, parse_ncx
 from .opf import EpubInfo, TocInfo, parse_opf
 from .search import SearchHit, build_search_index, search, tokenize
 from .storage import resolve_output_dir
 
-__version__ = "0.7.1"
-
-import warnings as _warnings
-
-_warnings.warn(
-    "epubsage has been renamed: pip install al-warraq, import al_warraq. "
-    "The epubsage package will receive no further updates.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+__version__ = "1.0.0"
 
 __all__ = [
+    "AlWarraqError",
     "EpubInfo",
-    "EpubSageError",
     "InvalidEpubError",
     "NavPoint",
     "NcxData",

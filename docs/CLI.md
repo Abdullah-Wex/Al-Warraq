@@ -1,16 +1,16 @@
-# EpubSage CLI Reference
+# Al-Warraq CLI Reference
 
-Command-line interface documentation for EpubSage v0.5.0.
+Command-line interface documentation for Al-Warraq v0.5.0.
 
 ## Overview
 
-EpubSage provides 5 commands for EPUB inspection from the terminal.
+Al-Warraq provides 5 commands for EPUB inspection from the terminal.
 
 ```bash
-epubsage --help
+al-warraq --help
 ```
 
-![CLI Help](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/cli-help.png?raw=true)
+![CLI Help](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/cli-help.png?raw=true)
 
 ---
 
@@ -30,7 +30,7 @@ epubsage --help
 Display basic EPUB information: version, TOC type, title.
 
 ```bash
-epubsage inspect <PATH> [--output-dir DIR]
+al-warraq inspect <PATH> [--output-dir DIR]
 ```
 
 | Option | Default | Description |
@@ -38,10 +38,10 @@ epubsage inspect <PATH> [--output-dir DIR]
 | `--output-dir`, `-o` | System temp | Extraction directory |
 
 ```bash
-epubsage inspect book.epub
+al-warraq inspect book.epub
 ```
 
-![CLI Inspect](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/cli-inspect.png?raw=true)
+![CLI Inspect](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/cli-inspect.png?raw=true)
 
 ---
 
@@ -50,7 +50,7 @@ epubsage inspect book.epub
 Extract EPUB contents to a directory (unzip).
 
 ```bash
-epubsage extract <PATH> [--output-dir DIR]
+al-warraq extract <PATH> [--output-dir DIR]
 ```
 
 | Option | Default | Description |
@@ -58,7 +58,7 @@ epubsage extract <PATH> [--output-dir DIR]
 | `--output-dir`, `-o` | System temp | Extraction directory |
 
 ```bash
-epubsage extract book.epub -o ./extracted
+al-warraq extract book.epub -o ./extracted
 ```
 
 ---
@@ -68,14 +68,14 @@ epubsage extract book.epub -o ./extracted
 Validate an EPUB file: checks ZIP structure, OPF presence, and TOC.
 
 ```bash
-epubsage validate <PATH>
+al-warraq validate <PATH>
 ```
 
 ```bash
-epubsage validate book.epub
+al-warraq validate book.epub
 ```
 
-![CLI Validate](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/cli-validate.png?raw=true)
+![CLI Validate](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/cli-validate.png?raw=true)
 
 ---
 
@@ -84,7 +84,7 @@ epubsage validate book.epub
 Display table of contents as a classified tree.
 
 ```bash
-epubsage toc <PATH> [--output-dir DIR]
+al-warraq toc <PATH> [--output-dir DIR]
 ```
 
 | Option | Default | Description |
@@ -104,10 +104,10 @@ Each entry shows a type tag and the section's anchor or file reference:
 | `S3` | Minor | Dim |
 
 ```bash
-epubsage toc book.epub
+al-warraq toc book.epub
 ```
 
-![CLI TOC](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/cli-toc.png?raw=true)
+![CLI TOC](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/cli-toc.png?raw=true)
 
 ---
 
@@ -116,7 +116,7 @@ epubsage toc book.epub
 Extract content for a specific TOC section by anchor ID, file path, or both.
 
 ```bash
-epubsage content <PATH> [OPTIONS]
+al-warraq content <PATH> [OPTIONS]
 ```
 
 | Option | Description |
@@ -132,37 +132,37 @@ At least one of `--anchor` or `--file` is required. Both can be used together.
 **HTML output (default):**
 
 ```bash
-epubsage content book.epub --anchor "ch01_intro"
+al-warraq content book.epub --anchor "ch01_intro"
 ```
 
-![CLI Content HTML](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/cli-content-html.png?raw=true)
+![CLI Content HTML](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/cli-content-html.png?raw=true)
 
 **Plaintext output:**
 
 ```bash
-epubsage content book.epub --anchor "ch01_intro" --parse-to plaintext
+al-warraq content book.epub --anchor "ch01_intro" --parse-to plaintext
 ```
 
-![CLI Content Plaintext](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/cli-content-plaintext.png?raw=true)
+![CLI Content Plaintext](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/cli-content-plaintext.png?raw=true)
 
 **Markdown output:**
 
 ```bash
-epubsage content book.epub --anchor "ch01_intro" --parse-to markdown
+al-warraq content book.epub --anchor "ch01_intro" --parse-to markdown
 ```
 
-![CLI Content Markdown](https://github.com/Abdullah-Wex/epubsage/blob/main/docs/screenshots/cli-content-markdown.png?raw=true)
+![CLI Content Markdown](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/cli-content-markdown.png?raw=true)
 
 **File + anchor:**
 
 ```bash
-epubsage content book.epub --file "ch01.html" --anchor "section_2"
+al-warraq content book.epub --file "ch01.html" --anchor "section_2"
 ```
 
 **Exclude sections:**
 
 ```bash
-epubsage content book.epub --anchor "ch01_intro" --exclude "footnotes,bibliography"
+al-warraq content book.epub --anchor "ch01_intro" --exclude "footnotes,bibliography"
 ```
 
 ---
@@ -171,7 +171,7 @@ epubsage content book.epub --anchor "ch01_intro" --exclude "footnotes,bibliograp
 
 | Variable | Description |
 |----------|-------------|
-| `EPUBSAGE_DEBUG` | Set to `1` or `true` for full exception tracebacks |
+| `AL_WARRAQ_DEBUG` | Set to `1` or `true` for full exception tracebacks |
 
 ---
 

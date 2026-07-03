@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     name: Build distribution
-    if: github.repository == 'Abdullah-Wex/epubsage'
+    if: github.repository == 'Abdullah-Wex/Al-Warraq'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,11 +35,11 @@ jobs:
   publish-to-pypi:
     name: Publish to PyPI
     needs: build
-    if: github.repository == 'Abdullah-Wex/epubsage'
+    if: github.repository == 'Abdullah-Wex/Al-Warraq'
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/epubsage
+      url: https://pypi.org/p/al-warraq
     permissions:
       id-token: write  # Required for trusted publishing
 
@@ -57,10 +57,10 @@ jobs:
     name: Publish to TestPyPI
     needs: build
     runs-on: ubuntu-latest
-    if: github.repository == 'Abdullah-Wex/epubsage' && github.event.release.prerelease == true
+    if: github.repository == 'Abdullah-Wex/Al-Warraq' && github.event.release.prerelease == true
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/epubsage
+      url: https://test.pypi.org/p/al-warraq
     permissions:
       id-token: write
 

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-07-03
+
+### Changed
+- **Project renamed: epubsage → Al-Warraq (الورّاق).** Install `al-warraq`, import `al_warraq`, CLI `al-warraq`.
+- Exception base class renamed: `EpubSageError` → `AlWarraqError`.
+- Environment variables renamed: `EPUBSAGE_*` → `AL_WARRAQ_*`.
+- Default output directory: `<tempdir>/al-warraq`.
+- The `epubsage` package on PyPI is deprecated at 0.7.1 and will receive no further updates.
+
+
 ## [Unreleased]
 
 ## [0.5.0] - 2026-03-25
@@ -18,14 +28,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `toc` CLI command — display TOC as a classified tree with type tags
 - `content` CLI command — extract section content (`--anchor`, `--file`, `--exclude`, `--parse-to`)
 - Zip bomb detection (compression ratio > 100x) and zip slip prevention
-- `EPUBSAGE_DEBUG` environment variable for full exception tracebacks
+- `AL_WARRAQ_DEBUG` environment variable for full exception tracebacks
 
 ### Changed
 
 - Complete API rewrite: replaced class-based architecture with 10 functions and 4 dataclasses
 - CLI rewritten from 15 commands to 5 (`inspect`, `extract`, `validate`, `toc`, `content`)
 - Dependencies: replaced `beautifulsoup4`, `lxml`, `pydantic` with `markdownify`
-- Package structure: flat module layout (9 files in `epubsage/`) replaces nested subdirectories
+- Package structure: flat module layout (9 files in `al_warraq/`) replaces nested subdirectories
 - TOC path resolution now handles non-root OPF directories and non-standard NCX filenames
 - Documentation fully rewritten
 
@@ -59,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **CLI Rewrite** - Complete rewrite using Typer and Rich for better UX
-  - New `epubsage/cli/` directory structure
+  - New `al_warraq/cli/` directory structure
   - Commands: info, content, export, images, media, metadata
   - Modern CLI with colors and rich output
 - **Code Modularization** - Split monolithic files into focused modules
@@ -90,7 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial release of EpubSage
+- Initial release of Al-Warraq
 - **Core Parsers**
   - `DublinCoreParser` - Full Dublin Core metadata extraction (15 elements)
   - `EpubStructureParser` - Complete EPUB structure analysis
@@ -109,7 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Pydantic models for Dublin Core metadata
   - Pydantic models for EPUB structure
 - **CLI**
-  - `epubsage extract` - Extract EPUB to JSON
+  - `al-warraq extract` - Extract EPUB to JSON
   - `epubsage info` - Display metadata
   - `epubsage list` - List chapters
 - **Utilities**
@@ -119,9 +129,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Type hints throughout with `py.typed` marker
 - Comprehensive test suite (60+ tests)
 
-[Unreleased]: https://github.com/Abdullah-Wex/epubsage/compare/v0.5.0...HEAD
-[0.5.0]: https://github.com/Abdullah-Wex/epubsage/compare/v0.3.0...v0.5.0
-[0.3.0]: https://github.com/Abdullah-Wex/epubsage/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/Abdullah-Wex/epubsage/compare/v0.1.1...v0.2.0
-[0.1.1]: https://github.com/Abdullah-Wex/epubsage/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/Abdullah-Wex/epubsage/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Abdullah-Wex/Al-Warraq/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Abdullah-Wex/Al-Warraq/compare/v0.3.0...v0.5.0
+[0.3.0]: https://github.com/Abdullah-Wex/Al-Warraq/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/Abdullah-Wex/Al-Warraq/compare/v0.1.1...v0.2.0
+[0.1.1]: https://github.com/Abdullah-Wex/Al-Warraq/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/Abdullah-Wex/Al-Warraq/releases/tag/v0.1.0

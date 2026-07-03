@@ -1,11 +1,11 @@
-"""Tests for BM25 search + SQLite inverted index (epubsage.search)."""
+"""Tests for BM25 search + SQLite inverted index (al_warraq.search)."""
 
 from __future__ import annotations
 
 import zipfile
 from pathlib import Path
 
-from epubsage import build_search_index, search, tokenize
+from al_warraq import build_search_index, search, tokenize
 
 _CONTAINER = (
     '<?xml version="1.0"?>'

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 96">
+<g transform="translate(10,13) scale(0.135)">
+  <rect x="0" y="0" width="512" height="512" rx="110" fill="#3B2B18"/>
+  <rect x="20" y="20" width="472" height="472" rx="96" fill="#57441F"/>
+  <rect x="38" y="38" width="436" height="436" rx="84" fill="none" stroke="#C9A227" stroke-width="5"/>
+  <rect x="56" y="56" width="400" height="400" rx="72" fill="none" stroke="#8B6F3E" stroke-width="1.5"/>
+  <rect x="80" y="80" width="16" height="16" fill="none" stroke="#C9A227" stroke-width="2" transform="rotate(45 88 88)"/>
+  <rect x="416" y="80" width="16" height="16" fill="none" stroke="#C9A227" stroke-width="2" transform="rotate(45 424 88)"/>
+  <path d="M260 176 C232 150 204 116 188 82 C180 66 168 56 154 50 C152 66 154 86 160 104 C170 136 206 164 246 190 Z" fill="#E8D49A" stroke="#8B6F3E" stroke-width="2"/>
+  <path d="M260 176 C232 150 206 118 190 86 C186 76 178 64 166 56 C170 74 178 98 190 122 C204 150 228 168 250 184 Z" fill="#C9A227"/>
+  <polygon points="160,76 149,68 152,88" fill="#57441F"/>
+  <polygon points="168,108 156,102 161,122" fill="#57441F"/>
+  <polygon points="182,140 170,136 177,154" fill="#57441F"/>
+  <path d="M254 180 C224 152 198 120 182 88 C176 74 166 60 157 53" fill="none" stroke="#6B5426" stroke-width="2.5"/>
+  <line x1="196" y1="106" x2="184" y2="98" stroke="#8B6F3E" stroke-width="1.8"/>
+  <line x1="210" y1="128" x2="196" y2="120" stroke="#8B6F3E" stroke-width="1.8"/>
+  <line x1="226" y1="146" x2="212" y2="140" stroke="#8B6F3E" stroke-width="1.8"/>
+  <line x1="240" y1="160" x2="228" y2="156" stroke="#8B6F3E" stroke-width="1.8"/>
+  <path d="M252 176 C280 150 308 116 324 82 C332 66 344 56 358 50 C360 66 358 86 352 104 C342 136 306 164 266 190 Z" fill="#E8D49A" stroke="#8B6F3E" stroke-width="2"/>
+  <path d="M252 176 C280 150 306 118 322 86 C326 76 334 64 346 56 C342 74 334 98 322 122 C308 150 284 168 262 184 Z" fill="#C9A227"/>
+  <polygon points="352,76 363,68 360,88" fill="#57441F"/>
+  <polygon points="344,108 356,102 351,122" fill="#57441F"/>
+  <polygon points="330,140 342,136 335,154" fill="#57441F"/>
+  <path d="M258 180 C288 152 314 120 330 88 C336 74 346 60 355 53" fill="none" stroke="#6B5426" stroke-width="2.5"/>
+  <line x1="316" y1="106" x2="328" y2="98" stroke="#8B6F3E" stroke-width="1.8"/>
+  <line x1="302" y1="128" x2="316" y2="120" stroke="#8B6F3E" stroke-width="1.8"/>
+  <line x1="286" y1="146" x2="300" y2="140" stroke="#8B6F3E" stroke-width="1.8"/>
+  <line x1="272" y1="160" x2="284" y2="156" stroke="#8B6F3E" stroke-width="1.8"/>
+  <g transform="translate(107.2,111) scale(0.62,0.5)">
+    <path d="M172 232 C172 178 308 178 308 232 C308 268 285 284 240 284 C195 284 172 268 172 232 Z" fill="#C9A227" stroke="#6B5426" stroke-width="5"/>
+    <path d="M282 196 C298 214 300 246 284 264 C296 240 294 214 282 196 Z" fill="#A8842E"/>
+    <ellipse cx="207" cy="228" rx="11" ry="26" fill="#E5C56B"/>
+    <path d="M218 182 L218 158 L262 158 L262 182 C248 176 232 176 218 182 Z" fill="#C9A227" stroke="#6B5426" stroke-width="4.5"/>
+    <rect x="204" y="144" width="72" height="16" rx="8" fill="#D9B85C" stroke="#6B5426" stroke-width="3.6"/>
+    <ellipse cx="240" cy="146" rx="26" ry="6.5" fill="#2E2410"/>
+    <ellipse cx="240" cy="146" rx="17" ry="4" fill="#3F7268"/>
+  </g>
+  <path d="M256 260 C259 264 261 267 261 270 A5.5 5.5 0 1 1 250.5 270 C250.5 267 253 264 256 260 Z" fill="#3F7268"/>
+  <path d="M256 282 C258.5 285.5 260.5 288 260.5 290.5 A4.8 4.8 0 1 1 251.5 290.5 C251.5 288 253.5 285.5 256 282 Z" fill="#5E8B7E"/>
+  <rect x="250" y="306" width="12" height="12" fill="#D9B85C"/>
+  <rect x="251.5" y="330" width="9" height="9" fill="#C9A227"/>
+  <rect x="253" y="352" width="7" height="7" fill="#A8842E"/>
+  <path d="M224 268 C226 271 227.5 273 227.5 275 A4.2 4.2 0 1 1 219.8 275 C219.8 273 222 271 224 268 Z" fill="#3F7268"/>
+  <rect x="219" y="294" width="9" height="9" fill="#D9B85C"/>
+  <rect x="221" y="318" width="7" height="7" fill="#C9A227"/>
+  <path d="M288 268 C290 271 291.5 273 291.5 275 A4.2 4.2 0 1 1 283.8 275 C283.8 273 286 271 288 268 Z" fill="#3F7268"/>
+  <rect x="283" y="294" width="9" height="9" fill="#D9B85C"/>
+  <rect x="285" y="318" width="7" height="7" fill="#C9A227"/>
+  <g transform="translate(16,206)">
+    <path d="M62 189 C150 180 330 180 418 189 L409 231 C330 241 150 241 71 231 Z" fill="#4A331C" stroke="#2E2410" stroke-width="2.5"/>
+    <path d="M70 192 C150 184 330 184 410 192 L402 226 C330 234 150 234 78 226 Z" fill="#E4D6AC" stroke="#6B5426" stroke-width="2"/>
+    <path d="M78 202 C160 195 320 195 402 202" fill="none" stroke="#C4AE74" stroke-width="1.5"/>
+    <path d="M80 210 C160 203 320 203 400 210" fill="none" stroke="#C4AE74" stroke-width="1.5"/>
+    <path d="M82 218 C160 211 320 211 398 218" fill="none" stroke="#C4AE74" stroke-width="1.5"/>
+    <path d="M78 182 C120 150 170 138 214 144 C228 148 236 155 240 164 L240 196 C180 188 124 190 76 192 Z" fill="#F2E6C0" stroke="#6B5426" stroke-width="2"/>
+    <path d="M402 182 C360 150 310 138 266 144 C252 148 244 155 240 164 L240 196 C300 188 356 190 404 192 Z" fill="#F2E6C0" stroke="#6B5426" stroke-width="2"/>
+    <path d="M96 180 C140 152 180 144 216 150" fill="none" stroke="#CBB77E" stroke-width="1.5"/>
+    <path d="M384 180 C340 152 300 144 264 150" fill="none" stroke="#CBB77E" stroke-width="1.5"/>
+    <path d="M233 160 C236 154 244 154 247 160 L245 198 L235 198 Z" fill="#B49B62"/>
+    <line x1="240" y1="162" x2="240" y2="196" stroke="#6B5426" stroke-width="2.5"/>
+    <path d="M234 196 L230 228 L240 221 L250 230 L246 196 Z" fill="#3F7268"/>
+  </g>
+</g>
+<text x="98" y="56" font-size="36" font-weight="700" fill="#8a6d2f" letter-spacing="2" font-family="Georgia,'Times New Roman',serif">Al-Warraq</text>
+</svg>

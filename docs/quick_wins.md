@@ -1,4 +1,4 @@
-# epubsage — Quick Wins
+# al-warraq — Quick Wins
 
 > Competitive gap analysis from [`benchmark.md`](./benchmark.md), turned into a prioritized feature roadmap.
 > **"Quick win"** = high impact, low cost, reusing parsers we already have.
@@ -18,7 +18,7 @@
 
 ## Current Baseline
 
-What `epubsage` ships today (v0.5.0):
+What `al-warraq` ships today (v0.5.0):
 
 | Area | Status |
 |---|---|
@@ -91,7 +91,7 @@ What `epubsage` ships today (v0.5.0):
 |---|---|
 | **Gap** | Manifest is parsed internally but nothing is exposed. epub-utils/EbookLib/fast-ebook/Readium all expose iterators. |
 | **Fix** | `ManifestItem(id, href, media_type, properties)` dataclass + `list_manifest(info)` / `list_spine(info)` helpers. |
-| **Impact** | Turns `epubsage` from "TOC inspector" into "package inspector." Essential for any resource-iterating consumer. |
+| **Impact** | Turns `al-warraq` from "TOC inspector" into "package inspector." Essential for any resource-iterating consumer. |
 
 ---
 
@@ -146,7 +146,7 @@ What `epubsage` ships today (v0.5.0):
 | | |
 |---|---|
 | **Gap** | fast-ebook's headline feature ("War and Peace → one markdown"). Pandoc and Calibre do it too. |
-| **Fix** | Iterate spine → call existing `extract_content(..., anchor=None)` per file → concatenate. New command: `epubsage export --format md book.epub`. |
+| **Fix** | Iterate spine → call existing `extract_content(..., anchor=None)` per file → concatenate. New command: `al-warraq export --format md book.epub`. |
 | **Impact** | Instant parity with fast-ebook using code we already have. HTML→MD and `<pre>` preservation already solved. |
 
 ---
@@ -166,7 +166,7 @@ What `epubsage` ships today (v0.5.0):
 | | |
 |---|---|
 | **Gap** | foliate-js, Readium, Calibre, Foliate all have it. **No Python lib does.** |
-| **Fix** | Walk spine → plaintext (already have) → word/regex search with context snippets + locator `(file, anchor)`. CLI: `epubsage search book.epub "quantum"`. |
+| **Fix** | Walk spine → plaintext (already have) → word/regex search with context snippets + locator `(file, anchor)`. CLI: `al-warraq search book.epub "quantum"`. |
 | **Impact** | **New capability with no Python competitor** — a rare positional gap. |
 
 ---

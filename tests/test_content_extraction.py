@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 import pytest
-from epubsage.content import extract_content
+from al_warraq.content import extract_content
 
 
 def _write(tmp_path: Path, name: str, body: str) -> str:

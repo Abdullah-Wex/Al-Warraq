@@ -3,10 +3,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from epubsage import Section, extract_all_sections
-from epubsage.nav import parse_nav
-from epubsage.ncx import parse_ncx
-from epubsage.opf import parse_opf
+from al_warraq import Section, extract_all_sections
+from al_warraq.nav import parse_nav
+from al_warraq.ncx import parse_ncx
+from al_warraq.opf import parse_opf
 
 
 # ---------------------------------------------------------------- BUG-4 ---
