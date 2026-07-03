@@ -73,3 +73,11 @@ eval_*_report.json
 plan.md
 test*.md
 test*.html
+
+# Local experiment/scratch outputs (root-anchored; tests/ is unaffected)
+/test*.html
+/test*.md
+/test*.json
+/test*.ipynb
+/results*
+/uploads/
