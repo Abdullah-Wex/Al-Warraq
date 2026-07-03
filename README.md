@@ -22,7 +22,8 @@ Lightweight EPUB inspection library — version detection, TOC discovery, and co
 | **Classification** | Classify entries as chapter, part, front/back matter, section |
 | **Content Extraction** | Extract content as HTML, plaintext, or markdown |
 | **Security** | Zip bomb detection and zip slip prevention |
-| **CLI** | 5 commands for EPUB inspection from the terminal |
+| **Full-Text Search** | BM25 search over a persisted SQLite index |
+| **CLI** | 6 commands for EPUB inspection from the terminal |
 
 ## Requirements
 
@@ -82,6 +83,9 @@ al-warraq --help
 | `validate` | Validate ZIP structure, OPF, and TOC |
 | `toc` | Display table of contents as a classified tree |
 | `content` | Extract content for a specific section |
+| `search` | BM25 full-text search across sections |
+
+![CLI Search](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/cli-search.png?raw=true)
 
 **[Full CLI documentation →](docs/CLI.md)**
 
