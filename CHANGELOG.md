@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `ContentStore` — content-addressed, deduplicated blob storage (identical
+  bytes stored once, `content_hash` = full SHA-256). Backends:
+  `LocalContentStore` (filesystem) and `MinioContentStore` (`minio` extra);
+  `get_minio_content_store()` env factory; `BlobNotFoundError`.
+- `process_epub(content_hash, store, ...)` — deterministic processing
+  pipeline producing `ProcessedBook` (metadata, chapters, passages with
+  stable ids and location metadata) under a versioned output contract
+  (`SCHEMA_VERSION`).
+- Hook interfaces `PassageSplitter` and `Embedder` for host-injected
+  strategies, with `StructuralSplitter` (paragraph-grouping) as the
+  default splitter and no embedding computed by default.
+
 ## [1.0.0] - 2026-07-03
 
 ### Changed
@@ -13,9 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment variables renamed: `EPUBSAGE_*` → `AL_WARRAQ_*`.
 - Default output directory: `<tempdir>/al-warraq`.
 - The `epubsage` package on PyPI is deprecated at 0.7.1 and will receive no further updates.
-
-
-## [Unreleased]
 
 ## [0.5.0] - 2026-03-25
 

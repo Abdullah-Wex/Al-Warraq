@@ -181,6 +181,100 @@ content: str = extract_content(
 
 ---
 
+## Storage & Processing
+
+### ContentStore
+
+Content-addressed, deduplicated blob storage. Identical bytes are stored
+exactly once; `put()` hashes first and skips the write when the blob
+already exists. The `content_hash` is the full SHA-256 hex digest.
+
+`ContentStore` is a structural protocol — any object with these four
+methods works:
+
+```python
+from al_warraq import ContentStore, LocalContentStore, MinioContentStore
+
+store: ContentStore = LocalContentStore("/var/blobs")
+
+content_hash = store.put(Path("book.epub").read_bytes())
+store.exists(content_hash)     # True
+data = store.get(content_hash) # raises BlobNotFoundError when missing
+store.delete(content_hash)     # unconditional — see the boundary note
+```
+
+| Backend | Storage | Notes |
+|---------|---------|-------|
+| `LocalContentStore(root)` | One file per blob at `root/<hash>` | Atomic writes; good for dev/CI |
+| `MinioContentStore(endpoint, access_key, secret_key, bucket, secure=False, prefix="blobs/")` | One object per blob at `<prefix><hash>` | Requires the `minio` extra; shares a bucket safely with the extraction cache |
+
+`get_minio_content_store()` builds a `MinioContentStore` from the
+`MINIO_ENDPOINT` / `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` / `MINIO_BUCKET`
+environment variables, or returns `None` when unconfigured.
+
+**Boundary:** the store is mechanism only. Reference counting, ownership,
+and access control belong to the host application — `delete()` removes a
+blob unconditionally, and the library never decides who may read what.
+
+---
+
+### process_epub
+
+```python
+from al_warraq import LocalContentStore, process_epub
+
+store = LocalContentStore("/var/blobs")
+content_hash = store.put(Path("book.epub").read_bytes())
+
+result = process_epub(content_hash, store)
+result.metadata.title          # "Book Title"
+result.chapters[0].text        # chapter plaintext, subsections included
+result.passages[0].passage_id  # "1a2b3c4d5e6f7a8b-c000-p0000"
+```
+
+**Signature:** `process_epub(content_hash, store, *, splitter=None, embedder=None, output_dir=None) -> ProcessedBook`
+
+Pipeline: fetch the blob → verify its hash → extract (shared cache, all
+zip-bomb/zip-slip guards apply) → parse metadata and TOC → assemble
+chapters in reading order → split each chapter into passages → optionally
+embed them.
+
+**Deterministic:** identical bytes processed with the same strategies
+produce identical output — no timestamps, no random ids — so hosts can
+share one index per unique book. `ProcessedBook.schema_version`
+(`SCHEMA_VERSION`, currently `1`) bumps whenever the output shape changes;
+hosts should check it before consuming.
+
+**Raises:** `ValueError` for a malformed hash, `BlobNotFoundError` when the
+store has no such blob, `InvalidEpubError` for tampered or invalid content.
+
+---
+
+### Hooks: PassageSplitter and Embedder
+
+The two injection points for host strategies. Both are structural
+protocols; implement the method and pass the object in — the library never
+calls back into the host beyond these.
+
+```python
+class SentenceSplitter:
+    def split(self, chapter_text: str) -> list[str]:
+        return [s for s in chapter_text.split(". ") if s]
+
+result = process_epub(content_hash, store, splitter=SentenceSplitter())
+```
+
+| Hook | Method | Default |
+|------|--------|---------|
+| `PassageSplitter` | `split(chapter_text) -> Sequence[str]` | `StructuralSplitter(max_chars=2000)` — packs whole paragraphs up to the size budget |
+| `Embedder` | `embed(passages) -> Sequence[Sequence[float]]` | None — no vectors computed |
+
+The splitter returns plain strings in reading order; the pipeline assigns
+positions and character offsets. The embedder gets one batched call with
+every passage text of the book and must return one vector per passage.
+
+---
+
 ## Data Types
 
 ### EpubInfo
@@ -239,6 +333,33 @@ Parsed NCX file data.
 
 ---
 
+### ProcessedBook
+
+Everything `process_epub()` produces. `to_dict()` returns a stable plain
+dict for serialization and comparison.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `schema_version` | `int` | Output-contract version (`SCHEMA_VERSION`) |
+| `content_hash` | `str` | Full SHA-256 of the source bytes |
+| `metadata` | `BookMetadata` | title, creator, publisher, epub_version, toc_type |
+| `chapters` | `list[ProcessedChapter]` | index, title, nav_type, file, anchor, text |
+| `passages` | `list[Passage]` | see below |
+
+### Passage
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `passage_id` | `str` | Deterministic: `<hash16>-c<chapter>-p<position>` |
+| `content_hash` | `str` | The book's content hash |
+| `chapter_index` | `int` | Which chapter this passage belongs to |
+| `position` | `int` | 0-based position within the chapter |
+| `text` | `str` | The passage text |
+| `char_start` / `char_end` | `int \| None` | Offsets into the chapter's text; `None` if the splitter transformed the text |
+| `vector` | `list[float] \| None` | Embedding, when an `Embedder` was injected |
+
+---
+
 ## Exceptions
 
 ```python
@@ -249,6 +370,7 @@ from al_warraq import AlWarraqError, InvalidEpubError
 |-----------|-------------|
 | `AlWarraqError` | Base exception for all Al-Warraq errors |
 | `InvalidEpubError` | EPUB file is invalid or corrupt |
+| `BlobNotFoundError` | No blob with the requested content hash in the ContentStore |
 
 ---
 
