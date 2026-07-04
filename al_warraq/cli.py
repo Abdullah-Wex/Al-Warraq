@@ -34,8 +34,9 @@ app = typer.Typer(
     help=(
         "Al-Warraq (الورّاق) — lightweight EPUB inspection\n\n"
         "al-warraq BOOK.epub opens the interactive browser "
-        "(requires the [tui] extra)."
+        r"(requires the \[tui] extra)."
     ),
+    no_args_is_help=True,
     pretty_exceptions_enable=_DEBUG,
 )
 _DEFAULT_OUT = resolve_output_dir()

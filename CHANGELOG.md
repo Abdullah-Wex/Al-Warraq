@@ -29,9 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default output directory: `<tempdir>/al-warraq`.
 - The `epubsage` package on PyPI is deprecated at 0.7.1 and will receive no further updates.
 
-
-## [Unreleased]
-
 ## [0.5.0] - 2026-03-25
 
 ### Added
