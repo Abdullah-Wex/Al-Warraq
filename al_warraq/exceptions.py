@@ -15,3 +15,7 @@ class TocNotFoundError(AlWarraqError):
 
 class SectionNotFoundError(AlWarraqError):
     """The requested anchor or file has no matching TOC entry."""
+
+
+class BlobNotFoundError(AlWarraqError):
+    """No blob with the requested content hash exists in the ContentStore."""
