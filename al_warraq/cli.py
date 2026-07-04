@@ -1,4 +1,8 @@
-"""Al-Warraq CLI — inspect EPUB files."""
+"""Al-Warraq CLI — thin frontend over the Book facade.
+
+Every command is: parse arguments → one Book call → render.
+Business logic lives in ``book.py``; rendering helpers live in ``output.py``.
+"""
 
 import os
 from pathlib import Path
@@ -6,20 +10,11 @@ from pathlib import Path
 import typer
 from rich.tree import Tree
 
-from . import __version__, inspect_epub
-from .classify import (
-    classify_children,
-    classify_navpoint,
-    merge_same_file_runs,
-    refine_positional,
-    refine_structural,
-)
-from .content import extract_content
-from .epub import extract_epub, find_opf, hash_epub
-from .exceptions import InvalidEpubError
-from .nav import parse_nav
-from .ncx import NavPoint, parse_ncx
-from .opf import parse_opf
+from . import __version__
+from .book import Book
+from .epub import extract_epub, hash_epub
+from .exceptions import AlWarraqError
+from .ncx import NavPoint
 from .output import (
     console,
     emit_data,
@@ -29,7 +24,6 @@ from .output import (
     print_kv,
     warn,
 )
-from .search import search as run_search
 from .storage import resolve_output_dir
 
 _DEBUG = os.environ.get("AL_WARRAQ_DEBUG", "").lower() in ("1", "true")
@@ -39,12 +33,30 @@ app = typer.Typer(
 )
 _DEFAULT_OUT = resolve_output_dir()
 
+_PATH_ARG = typer.Argument(None, help="Path to EPUB file.")
+_OUT_OPT = typer.Option(
+    _DEFAULT_OUT, "--output-dir", "-o", help="Extraction directory.",
+)
+_JSON_OPT = typer.Option(
+    False, "--json", help="Print a single JSON object to stdout.",
+)
+
 
 def _require_path(ctx: typer.Context, path: Path | None) -> Path:
     """Validate that path was provided; one-line error otherwise."""
     if path is None:
         fail("Missing required argument: PATH", ctx.command.name, code=2)
     return path
+
+
+def _open_book(path: Path, output_dir: str, command: str) -> Book:
+    """Open the book, translating library errors into CLI failures."""
+    try:
+        return Book.open(path, output_dir)
+    except AlWarraqError as e:
+        fail(str(e), command)
+    except Exception as e:
+        fail(f"Unexpected error: {e}", command)
 
 
 def version_callback(value: bool) -> None:
@@ -66,59 +78,46 @@ def main(
 @app.command()
 def inspect(
     ctx: typer.Context,
-    path: Path | None = typer.Argument(None, help="Path to EPUB file."),
-    output_dir: str = typer.Option(
-        _DEFAULT_OUT, "--output-dir", "-o", help="Extraction directory.",
-    ),
-    as_json: bool = typer.Option(
-        False, "--json", help="Print a single JSON object to stdout.",
-    ),
+    path: Path | None = _PATH_ARG,
+    output_dir: str = _OUT_OPT,
+    as_json: bool = _JSON_OPT,
 ) -> None:
     """Inspect an EPUB: version, TOC type, title."""
     epub_path = _require_path(ctx, path)
-    try:
-        info = inspect_epub(str(epub_path), output_dir)
-    except InvalidEpubError as e:
-        fail(str(e), "inspect")
-    except Exception as e:
-        fail(f"Unexpected error: {e}", "inspect")
+    book = _open_book(epub_path, output_dir, "inspect")
 
     if as_json:
         emit_json({
-            "title": info.title,
-            "version": info.version,
-            "toc": {"type": info.toc.toc_type, "href": info.toc.toc_href},
-            "opf_path": str(info.opf_path),
-            "hash": hash_epub(str(epub_path)),
+            "title": book.title,
+            "version": book.version,
+            "toc": {"type": book.toc_type, "href": book.info.toc.toc_href},
+            "opf_path": str(book.info.opf_path),
+            "hash": book.hash,
         })
         return
     pairs = [
-        ("Title", info.title or "(none)"),
-        ("Version", f"EPUB {info.version}"),
-        ("TOC Type", info.toc.toc_type),
+        ("Title", book.title or "(none)"),
+        ("Version", f"EPUB {book.version}"),
+        ("TOC Type", book.toc_type),
     ]
-    if info.toc.toc_href:
-        pairs.append(("TOC File", info.toc.toc_href))
-    pairs.append(("OPF Path", str(info.opf_path)))
+    if book.info.toc.toc_href:
+        pairs.append(("TOC File", book.info.toc.toc_href))
+    pairs.append(("OPF Path", str(book.info.opf_path)))
     print_kv(pairs)
 
 
 @app.command()
 def extract(
     ctx: typer.Context,
-    path: Path | None = typer.Argument(None, help="Path to EPUB file."),
-    output_dir: str = typer.Option(
-        _DEFAULT_OUT, "--output-dir", "-o", help="Extraction directory.",
-    ),
-    as_json: bool = typer.Option(
-        False, "--json", help="Print a single JSON object to stdout.",
-    ),
+    path: Path | None = _PATH_ARG,
+    output_dir: str = _OUT_OPT,
+    as_json: bool = _JSON_OPT,
 ) -> None:
     """Extract an EPUB to a directory."""
     epub_path = _require_path(ctx, path)
     try:
         extract_dir = extract_epub(str(epub_path), output_dir)
-    except InvalidEpubError as e:
+    except AlWarraqError as e:
         fail(str(e), "extract")
     except Exception as e:
         fail(f"Unexpected error: {e}", "extract")
@@ -135,18 +134,14 @@ def extract(
 @app.command()
 def validate(
     ctx: typer.Context,
-    path: Path | None = typer.Argument(None, help="Path to EPUB file."),
-    as_json: bool = typer.Option(
-        False, "--json", help="Print a single JSON object to stdout.",
-    ),
+    path: Path | None = _PATH_ARG,
+    as_json: bool = _JSON_OPT,
 ) -> None:
     """Validate an EPUB file (valid zip, has OPF, has TOC)."""
     epub_path = _require_path(ctx, path)
     try:
-        extract_dir = extract_epub(str(epub_path), _DEFAULT_OUT)
-        opf_path = find_opf(str(extract_dir))
-        info = parse_opf(str(opf_path), str(extract_dir))
-    except InvalidEpubError as e:
+        book = Book.open(epub_path, _DEFAULT_OUT)
+    except AlWarraqError as e:
         if as_json:
             emit_json({"valid": False, "error": str(e)})
             raise typer.Exit(1) from None
@@ -157,13 +152,13 @@ def validate(
     if as_json:
         emit_json({
             "valid": True,
-            "version": info.version,
-            "toc": {"type": info.toc.toc_type, "href": info.toc.toc_href},
+            "version": book.version,
+            "toc": {"type": book.toc_type, "href": book.info.toc.toc_href},
         })
         return
-    console.print(f"[green]Valid EPUB {info.version}[/green]")
-    if info.toc.toc_type != "unknown":
-        console.print(f"  TOC: {info.toc.toc_type} ({info.toc.toc_href})")
+    console.print(f"[green]Valid EPUB {book.version}[/green]")
+    if book.toc_type != "unknown":
+        console.print(f"  TOC: {book.toc_type} ({book.info.toc.toc_href})")
     else:
         console.print("  [yellow]TOC: not found[/yellow]")
 
@@ -171,100 +166,32 @@ def validate(
 @app.command()
 def toc(
     ctx: typer.Context,
-    path: Path | None = typer.Argument(None, help="Path to EPUB file."),
-    output_dir: str = typer.Option(
-        _DEFAULT_OUT, "--output-dir", "-o", help="Extraction directory.",
-    ),
-    as_json: bool = typer.Option(
-        False, "--json", help="Print a single JSON object to stdout.",
-    ),
+    path: Path | None = _PATH_ARG,
+    output_dir: str = _OUT_OPT,
+    as_json: bool = _JSON_OPT,
 ) -> None:
     """Display table of contents as a tree."""
     epub_path = _require_path(ctx, path)
+    book = _open_book(epub_path, output_dir, "toc")
+
     try:
-        info = inspect_epub(str(epub_path), output_dir)
-    except InvalidEpubError as e:
+        nav_points = book.toc()
+    except AlWarraqError as e:
         fail(str(e), "toc")
-    except Exception as e:
-        fail(f"Unexpected error: {e}", "toc")
-
-    if info.toc.ncx_path:
-        ncx = parse_ncx(str(info.toc.ncx_path))
-        title = ncx.doc_title or info.title or "(untitled)"
-        nav_points = ncx.nav_points
-    elif info.toc.toc_path:
-        nav_points = parse_nav(str(info.toc.toc_path))
-        title = info.title or "(untitled)"
-    else:
-        fail("No table of contents found.", "toc")
-
-    # Collapse Packt-style split chapter pairs before classification
-    nav_points = merge_same_file_runs(nav_points)
-
-    # Classify top-level points, then refine with positional and
-    # structural passes before walking children.
-    for pt in nav_points:
-        pt.nav_type = classify_navpoint(pt)
-    refine_structural(nav_points)
-    refine_positional(nav_points)
-    classify_children(nav_points)
-
-    # Group chapters under parts (flat TOC only)
-    grouped = _group_under_parts(nav_points)
 
     if as_json:
         emit_json({
-            "doc_title": title,
-            "nav_points": [navpoint_to_dict(pt) for pt in grouped],
+            "doc_title": book.doc_title,
+            "nav_points": [navpoint_to_dict(pt) for pt in nav_points],
         })
         return
-
-    tree = Tree(f"[bold]{title}[/bold]")
-
-    type_style = {
-        "chapter": "green",
-        "part": "bold cyan",
-        "front_matter": "dim",
-        "back_matter": "dim",
-        "section": "blue",
-        "subsection": "dim blue",
-        "minor": "dim",
-    }
-    type_tag = {
-        "chapter": "CH",
-        "part": "PT",
-        "front_matter": "FM",
-        "back_matter": "BM",
-        "section": "S1",
-        "subsection": "S2",
-        "minor": "S3",
-    }
-
-    def _add_points(parent: Tree, points: list[NavPoint]) -> None:
-        for pt in points:
-            nav_type = pt.nav_type or "section"
-            style = type_style.get(nav_type, "")
-            tag = type_tag.get(nav_type, "")
-            loc_parts = []
-            if pt.file:
-                loc_parts.append(pt.file)
-            if pt.anchor:
-                loc_parts.append(f"#{pt.anchor}")
-            src = " · ".join(loc_parts)
-            loc_str = f"  [dim]({src})[/dim]" if src else ""
-            tag_str = f"[{style}]\\[{tag}][/{style}] " if tag else ""
-            label_str = f"[{style}]{pt.label}[/{style}]" if style else pt.label
-            branch = parent.add(f"{tag_str}{label_str}{loc_str}")
-            _add_points(branch, pt.children)
-
-    _add_points(tree, grouped)
-    console.print(tree)
+    _print_toc_tree(book.doc_title, nav_points)
 
 
 @app.command()
 def content(
     ctx: typer.Context,
-    path: Path | None = typer.Argument(None, help="Path to EPUB file."),
+    path: Path | None = _PATH_ARG,
     anchor: str | None = typer.Option(None, "--anchor", "-a", help="TOC anchor ID."),
     file: str | None = typer.Option(
         None, "--file", "-f", help="Chapter file path (relative to EPUB).",
@@ -275,242 +202,40 @@ def content(
     parse_to: str | None = typer.Option(
         None, "--parse-to", "-p", help="Output format: plaintext, markdown.",
     ),
-    output_dir: str = typer.Option(
-        _DEFAULT_OUT, "--output-dir", "-o", help="Extraction directory.",
-    ),
-    as_json: bool = typer.Option(
-        False, "--json", help="Print a single JSON object to stdout.",
-    ),
+    output_dir: str = _OUT_OPT,
+    as_json: bool = _JSON_OPT,
 ) -> None:
     """Extract content for a TOC section by anchor or file."""
     epub_path = _require_path(ctx, path)
     if anchor is None and file is None:
         fail("Provide --anchor or --file", "content", code=2)
 
-    try:
-        info = inspect_epub(str(epub_path), output_dir)
-    except InvalidEpubError as e:
-        fail(str(e), "content")
-    except Exception as e:
-        fail(f"Unexpected error: {e}", "content")
-
-    # Parse TOC to get all NavPoints
-    nav_points = _get_nav_points(info)
-    if nav_points is None:
-        fail("No table of contents found.", "content")
-
-    # Flatten all navpoints
-    all_points = _flatten_navpoints(nav_points)
-
-    # Resolve the target file
-    opf_dir = info.opf_path.parent
-    target_pt: NavPoint | None = None
-
-    if file is not None:
-        # Resolve file — try exact match, then match by filename
-        resolved = _resolve_toc_file(file, all_points)
-        if resolved is None:
-            fail(f"File '{file}' not found in TOC", "content")
-        target_file = resolved
-        target_anchor: str | None = anchor
-        if anchor is not None:
-            target_pt = next(
-                (pt for pt in all_points
-                 if pt.file == target_file and pt.anchor == anchor),
-                None,
-            )
-        else:
-            target_pt = next(
-                (pt for pt in all_points
-                 if pt.file == target_file and pt.anchor is None),
-                None,
-            )
-        child_anchors = (
-            _collect_child_anchors(target_pt) if target_pt else []
-        )
-    elif anchor is not None:
-        # Find NavPoint matching anchor
-        target_pt = next(
-            (pt for pt in all_points if pt.anchor == anchor), None,
-        )
-        if target_pt is None:
-            fail(f"Anchor '{anchor}' not found in TOC", "content")
-        target_file = target_pt.file
-        target_anchor = anchor
-        child_anchors = _collect_child_anchors(target_pt)
-
-    # Resolve to absolute path — prefer NavPoint.abs_file when available
-    if target_pt is not None and target_pt.abs_file:
-        html_path = Path(target_pt.abs_file)
-    else:
-        html_path = (opf_dir / target_file).resolve()
-    if not html_path.exists():
-        fail(f"File not found: {html_path}")
-
-    # Collect all TOC anchors for this file
-    toc_anchors = [
-        pt.anchor for pt in all_points
-        if pt.file == target_file and pt.anchor is not None
-    ]
-
-    # Derive stop_anchors from the TOC tree so mid-prose anchors (e.g. Packt
-    # ``_idParaDest-*`` cross-references) do not truncate section extraction.
-    stop_anchors = (
-        _stop_anchors_for(target_pt, nav_points) if target_pt else None
-    )
-
-    # Parse exclude list
-    exclude_list = (
-        [a.strip() for a in exclude.split(",")] if exclude else None
-    )
+    book = _open_book(epub_path, output_dir, "content")
+    exclude_list = [a.strip() for a in exclude.split(",")] if exclude else None
 
     try:
-        html = extract_content(
-            str(html_path), target_anchor, toc_anchors,
-            child_anchors, exclude_list, output_format=parse_to,
-            stop_anchors=stop_anchors,
+        section = book.section(
+            anchor=anchor, file=file,
+            output_format=parse_to, exclude=exclude_list,
         )
-    except InvalidEpubError as e:
+    except AlWarraqError as e:
         fail(str(e), "content")
 
     if as_json:
         emit_json({
-            "file": target_file,
-            "anchor": target_anchor,
-            "format": parse_to or "html",
-            "content": html,
+            "file": section.file,
+            "anchor": section.anchor,
+            "format": section.output_format,
+            "content": section.text,
         })
     else:
-        emit_data(html)
-
-
-def _get_nav_points(info: object) -> list[NavPoint] | None:
-    """Get NavPoints from NCX or NAV."""
-    toc = info.toc  # type: ignore[attr-defined]
-    if toc.ncx_path:
-        ncx = parse_ncx(str(toc.ncx_path))
-        return ncx.nav_points
-    if toc.toc_path:
-        return parse_nav(str(toc.toc_path))
-    return None
-
-
-def _resolve_toc_file(
-    file_input: str, all_points: list[NavPoint],
-) -> str | None:
-    """Resolve a file input to the full TOC file path.
-
-    Tries exact match first, then matches by filename only.
-    """
-    # Exact match
-    for pt in all_points:
-        if pt.file == file_input:
-            return pt.file
-    # Match by filename (without directory)
-    for pt in all_points:
-        if pt.file.rsplit("/", 1)[-1] == file_input:
-            return pt.file
-    # Match by filename (without directory, input might have path)
-    input_name = file_input.rsplit("/", 1)[-1]
-    for pt in all_points:
-        if pt.file.rsplit("/", 1)[-1] == input_name:
-            return pt.file
-    return None
-
-
-def _collect_child_anchors(pt: NavPoint) -> list[str]:
-    """Collect all descendant anchor IDs from a NavPoint."""
-    anchors: list[str] = []
-    for child in pt.children:
-        if child.anchor:
-            anchors.append(child.anchor)
-        anchors.extend(_collect_child_anchors(child))
-    return anchors
-
-
-def _stop_anchors_for(
-    target: NavPoint, roots: list[NavPoint],
-) -> list[str] | None:
-    """Derive boundary anchors for ``target`` from the TOC tree.
-
-    Returns the anchors of every TOC sibling that follows ``target`` (and
-    their descendants) at each level of the ancestry chain, filtered to
-    ``target.file``. Filtering by file is essential because some publishers
-    (e.g. Manning) restart paragraph numbering per chapter so anchor IDs
-    collide across files — without the filter, a following chapter's anchor
-    would coincidentally match an ID in the current chapter and truncate.
-    """
-    path = _find_path(target, roots)
-    if path is None:
-        return None
-    stops: list[str] = []
-    for depth, node in enumerate(path):
-        siblings = roots if depth == 0 else path[depth - 1].children
-        idx = siblings.index(node)
-        for sib in siblings[idx + 1 :]:
-            _collect_same_file_anchors(sib, target.file, stops)
-    return stops
-
-
-def _collect_same_file_anchors(
-    pt: NavPoint, file: str, out: list[str],
-) -> None:
-    """Append ``pt`` and its descendants' anchors when they are in ``file``."""
-    if pt.anchor and pt.file == file:
-        out.append(pt.anchor)
-    for child in pt.children:
-        _collect_same_file_anchors(child, file, out)
-
-
-def _find_path(
-    target: NavPoint, roots: list[NavPoint],
-) -> list[NavPoint] | None:
-    """Ancestor chain ending at target (inclusive), or None."""
-    for root in roots:
-        if root is target:
-            return [root]
-        found = _find_path(target, root.children)
-        if found is not None:
-            return [root, *found]
-    return None
-
-
-def _flatten_navpoints(points: list[NavPoint]) -> list[NavPoint]:
-    """Flatten nested NavPoint tree into a flat list."""
-    result: list[NavPoint] = []
-    for pt in points:
-        result.append(pt)
-        result.extend(_flatten_navpoints(pt.children))
-    return result
-
-
-def _group_under_parts(points: list[NavPoint]) -> list[NavPoint]:
-    """Group chapters under their preceding part (flat NCX only)."""
-    # Skip if parts already have children (nested pattern)
-    if any(p.nav_type == "part" and p.children for p in points):
-        return points
-
-    result: list[NavPoint] = []
-    current_part: NavPoint | None = None
-
-    for pt in points:
-        if pt.nav_type == "part":
-            current_part = pt
-            result.append(pt)
-        elif pt.nav_type == "chapter" and current_part is not None:
-            current_part.children.append(pt)
-        else:
-            if pt.nav_type == "back_matter":
-                current_part = None
-            result.append(pt)
-
-    return result
+        emit_data(section.text)
 
 
 @app.command()
 def search(
     ctx: typer.Context,
-    path: Path | None = typer.Argument(None, help="Path to EPUB file."),
+    path: Path | None = _PATH_ARG,
     query: str | None = typer.Argument(None, help="Search query."),
     group: str = typer.Option(
         "section", "--group", "-g",
@@ -527,9 +252,7 @@ def search(
     output_dir: str = typer.Option(
         _DEFAULT_OUT, "--output-dir", "-o", help="Extraction/index directory.",
     ),
-    as_json: bool = typer.Option(
-        False, "--json", help="Print a single JSON object to stdout.",
-    ),
+    as_json: bool = _JSON_OPT,
 ) -> None:
     """Full-text BM25 search across an EPUB's sections."""
     epub_path = _require_path(ctx, path)
@@ -541,14 +264,14 @@ def search(
         fail("--format requires --show-content", "search", code=2)
     if fmt is not None and fmt not in ("html", "plaintext", "markdown"):
         fail("--format must be html, plaintext, or markdown", "search", code=2)
-    content_format = fmt or "html"
 
+    book = _open_book(epub_path, output_dir, "search")
     try:
-        hits = run_search(
-            str(epub_path), query, group=group, limit=limit, output_dir=output_dir,
-            with_content=show_content, content_format=content_format,
+        hits = book.search(
+            query, group=group, limit=limit,
+            with_content=show_content, content_format=fmt or "html",
         )
-    except InvalidEpubError as e:
+    except AlWarraqError as e:
         fail(str(e), "search")
     except Exception as e:
         fail(f"Unexpected error: {e}", "search")
@@ -598,6 +321,53 @@ def search(
             console.print(f"[dim]{'─' * 60}[/dim]")
             console.print(h.content, markup=False, highlight=False)
             console.print(f"[dim]{'─' * 60}[/dim]\n")
+
+
+# ------------------------------------------------------------- toc rendering
+
+_TYPE_STYLE = {
+    "chapter": "green",
+    "part": "bold cyan",
+    "front_matter": "dim",
+    "back_matter": "dim",
+    "section": "blue",
+    "subsection": "dim blue",
+    "minor": "dim",
+}
+_TYPE_TAG = {
+    "chapter": "CH",
+    "part": "PT",
+    "front_matter": "FM",
+    "back_matter": "BM",
+    "section": "S1",
+    "subsection": "S2",
+    "minor": "S3",
+}
+
+
+def _print_toc_tree(title: str, nav_points: list[NavPoint]) -> None:
+    """Render the classified TOC as a colored tree."""
+    tree = Tree(f"[bold]{title}[/bold]")
+    _add_points(tree, nav_points)
+    console.print(tree)
+
+
+def _add_points(parent: Tree, points: list[NavPoint]) -> None:
+    for pt in points:
+        nav_type = pt.nav_type or "section"
+        style = _TYPE_STYLE.get(nav_type, "")
+        tag = _TYPE_TAG.get(nav_type, "")
+        loc_parts = []
+        if pt.file:
+            loc_parts.append(pt.file)
+        if pt.anchor:
+            loc_parts.append(f"#{pt.anchor}")
+        src = " · ".join(loc_parts)
+        loc_str = f"  [dim]({src})[/dim]" if src else ""
+        tag_str = f"[{style}]\\[{tag}][/{style}] " if tag else ""
+        label_str = f"[{style}]{pt.label}[/{style}]" if style else pt.label
+        branch = parent.add(f"{tag_str}{label_str}{loc_str}")
+        _add_points(branch, pt.children)
 
 
 def cli_entry() -> None:
