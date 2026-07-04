@@ -5,9 +5,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from al_warraq.cli import app
 from typer.testing import CliRunner
 
-from al_warraq.cli import app
 from tests.test_search import _make_epub
 
 runner = CliRunner()
@@ -99,7 +99,7 @@ def test_error_is_single_line_no_help_dump(tmp_path: Path) -> None:
     assert "--help" in combined  # but a hint is present
 
 
-def test_missing_path_is_usage_error(tmp_path: Path) -> None:
+def test_missing_path_is_usage_error() -> None:
     result = runner.invoke(app, ["inspect"])
     assert result.exit_code == 2
     assert "Usage:" not in result.output

@@ -3,6 +3,7 @@
 Install: ``pip install al-warraq`` · Import: ``import al_warraq``
 """
 
+from .book import Book, SectionContent, inspect_epub
 from .classify import (
     classify_children,
     classify_navpoint,
@@ -12,7 +13,12 @@ from .classify import (
 )
 from .content import Section, extract_all_sections, extract_content
 from .epub import extract_epub, find_opf, hash_epub
-from .exceptions import AlWarraqError, InvalidEpubError
+from .exceptions import (
+    AlWarraqError,
+    InvalidEpubError,
+    SectionNotFoundError,
+    TocNotFoundError,
+)
 from .nav import parse_nav
 from .ncx import NavPoint, NcxData, parse_ncx
 from .opf import EpubInfo, TocInfo, parse_opf
@@ -23,13 +29,17 @@ __version__ = "1.0.0"
 
 __all__ = [
     "AlWarraqError",
+    "Book",
     "EpubInfo",
     "InvalidEpubError",
     "NavPoint",
     "NcxData",
     "SearchHit",
     "Section",
+    "SectionContent",
+    "SectionNotFoundError",
     "TocInfo",
+    "TocNotFoundError",
     "build_search_index",
     "classify_children",
     "classify_navpoint",
@@ -45,13 +55,7 @@ __all__ = [
     "parse_opf",
     "refine_positional",
     "refine_structural",
+    "resolve_output_dir",
     "search",
     "tokenize",
 ]
-
-
-def inspect_epub(epub_path: str, output_dir: str | None = None) -> EpubInfo:
-    """Hash, extract, parse OPF, detect TOC type."""
-    extract_dir = extract_epub(epub_path, output_dir or resolve_output_dir())
-    opf_path = find_opf(str(extract_dir))
-    return parse_opf(str(opf_path), str(extract_dir))
