@@ -4,22 +4,25 @@ Every command is: parse arguments → one Book call → render.
 Business logic lives in ``book.py``; rendering helpers live in ``output.py``.
 """
 
+import importlib.util
 import os
+import sys
 from pathlib import Path
 
 import typer
-from rich.tree import Tree
 
 from . import __version__
 from .book import Book
 from .epub import extract_epub, hash_epub
 from .exceptions import AlWarraqError
-from .ncx import NavPoint
 from .output import (
+    build_search_results,
+    build_toc_tree,
     console,
     emit_data,
     emit_json,
     fail,
+    inspect_pairs,
     navpoint_to_dict,
     print_kv,
     warn,
@@ -28,7 +31,11 @@ from .storage import resolve_output_dir
 
 _DEBUG = os.environ.get("AL_WARRAQ_DEBUG", "").lower() in ("1", "true")
 app = typer.Typer(
-    help="Al-Warraq (الورّاق) — lightweight EPUB inspection",
+    help=(
+        "Al-Warraq (الورّاق) — lightweight EPUB inspection\n\n"
+        "al-warraq BOOK.epub opens the interactive browser "
+        "(requires the [tui] extra)."
+    ),
     pretty_exceptions_enable=_DEBUG,
 )
 _DEFAULT_OUT = resolve_output_dir()
@@ -95,15 +102,7 @@ def inspect(
             "hash": book.hash,
         })
         return
-    pairs = [
-        ("Title", book.title or "(none)"),
-        ("Version", f"EPUB {book.version}"),
-        ("TOC Type", book.toc_type),
-    ]
-    if book.info.toc.toc_href:
-        pairs.append(("TOC File", book.info.toc.toc_href))
-    pairs.append(("OPF Path", str(book.info.opf_path)))
-    print_kv(pairs)
+    print_kv(inspect_pairs(book))
 
 
 @app.command()
@@ -185,7 +184,7 @@ def toc(
             "nav_points": [navpoint_to_dict(pt) for pt in nav_points],
         })
         return
-    _print_toc_tree(book.doc_title, nav_points)
+    console.print(build_toc_tree(book.doc_title, nav_points))
 
 
 @app.command()
@@ -298,78 +297,66 @@ def search(
         warn(f"No matches for {query!r}")
         return
 
-    console.print(
-        f"[bold]{len(hits)} result(s) for[/bold] {query!r} "
-        f"[dim](--group {group})[/dim]\n"
-    )
-    for h in hits:
-        crumb = " › ".join(h.breadcrumb)  # noqa: RUF001
-        loc_parts = []
-        if h.file:
-            loc_parts.append(h.file)
-        if h.anchor:
-            loc_parts.append(f"#{h.anchor}")
-        loc = " · ".join(loc_parts)
-        suffix = (
-            f" [dim]({h.n_sections} matching section(s))[/dim]"
-            if group == "chapter" and h.n_sections > 1 else ""
-        )
-        console.print(f"[green]{h.score:6.2f}[/green]  {crumb}{suffix}")
-        if loc:
-            console.print(f"        [dim]({loc})[/dim]")
-        if show_content and h.content:
-            console.print(f"[dim]{'─' * 60}[/dim]")
-            console.print(h.content, markup=False, highlight=False)
-            console.print(f"[dim]{'─' * 60}[/dim]\n")
+    console.print(build_search_results(query, group, hits, show_content=show_content))
 
 
-# ------------------------------------------------------------- toc rendering
+# ----------------------------------------------------------------- invocation
+#
+# Two ways in, one vocabulary:
+#
+#   al-warraq <verb> book.epub   → one-shot answer, prints and exits
+#   al-warraq book.epub          → interactive browser (the TUI)
+#   al-warraq                    → help (never auto-enters the TUI)
 
-_TYPE_STYLE = {
-    "chapter": "green",
-    "part": "bold cyan",
-    "front_matter": "dim",
-    "back_matter": "dim",
-    "section": "blue",
-    "subsection": "dim blue",
-    "minor": "dim",
-}
-_TYPE_TAG = {
-    "chapter": "CH",
-    "part": "PT",
-    "front_matter": "FM",
-    "back_matter": "BM",
-    "section": "S1",
-    "subsection": "S2",
-    "minor": "S3",
-}
+_COMMANDS = frozenset({"inspect", "extract", "validate", "toc", "content", "search"})
 
 
-def _print_toc_tree(title: str, nav_points: list[NavPoint]) -> None:
-    """Render the classified TOC as a colored tree."""
-    tree = Tree(f"[bold]{title}[/bold]")
-    _add_points(tree, nav_points)
-    console.print(tree)
+def _resolve_invocation(args: list[str]) -> Path | None:
+    """Return the EPUB path for a path-only invocation, else None.
+
+    Path mode is exactly one positional argument that is not an option, not a
+    command name, and either ends in ``.epub`` or is an existing file. Anything
+    else (verbs, flags, multiple arguments) is handled by Typer as usual.
+    """
+    if len(args) != 1:
+        return None
+    arg = args[0]
+    if arg.startswith("-") or arg in _COMMANDS:
+        return None
+    if arg.endswith(".epub") or Path(arg).is_file():
+        return Path(arg)
+    return None
 
 
-def _add_points(parent: Tree, points: list[NavPoint]) -> None:
-    for pt in points:
-        nav_type = pt.nav_type or "section"
-        style = _TYPE_STYLE.get(nav_type, "")
-        tag = _TYPE_TAG.get(nav_type, "")
-        loc_parts = []
-        if pt.file:
-            loc_parts.append(pt.file)
-        if pt.anchor:
-            loc_parts.append(f"#{pt.anchor}")
-        src = " · ".join(loc_parts)
-        loc_str = f"  [dim]({src})[/dim]" if src else ""
-        tag_str = f"[{style}]\\[{tag}][/{style}] " if tag else ""
-        label_str = f"[{style}]{pt.label}[/{style}]" if style else pt.label
-        branch = parent.add(f"{tag_str}{label_str}{loc_str}")
-        _add_points(branch, pt.children)
+def _run_path_mode(path: Path) -> None:
+    """Open the interactive browser on ``path``, or fall back to ``inspect``.
+
+    Fallback order: no TTY (scripts/pipes must never block) → tui extra not
+    installed (hint on stderr, inspect on stdout) → invalid EPUB (normal
+    one-line error, exit 1) → launch the app.
+    """
+    if not (sys.stdin.isatty() and sys.stdout.isatty()):
+        app(["inspect", str(path)])
+        return
+    if importlib.util.find_spec("textual") is None:
+        warn("Interactive mode needs the tui extra: pip install al-warraq[tui]")
+        app(["inspect", str(path)])
+        return
+
+    book = _open_book(path, _DEFAULT_OUT, "inspect")
+    from .tui import run_app
+
+    run_app(book)
 
 
 def cli_entry() -> None:
     """Entry point for pyproject.toml."""
-    app()
+    path = _resolve_invocation(sys.argv[1:])
+    if path is None:
+        app()
+        return
+    try:
+        _run_path_mode(path)
+    except typer.Exit as e:
+        # Path mode runs outside the Typer app, so convert its exit signal.
+        raise SystemExit(e.exit_code) from None
