@@ -74,8 +74,10 @@ vocabulary as the one-shot verbs and use the same renderers:
 | `/help` | List all commands |
 | `/quit` | Exit (also `Ctrl+Q`) |
 
-Keys: `↑`/`↓` move the popup highlight, `Tab`/`Enter` complete the
-highlighted command, `Esc` clears, `PageUp`/`PageDown` scroll results.
+Keys: `↑`/`↓` move the popup highlight — or, when the popup is closed,
+recall previous inputs (history is kept per book across sessions, stored
+locally in the cache directory). `Tab`/`Enter` complete the highlighted
+command, `Esc` clears, `PageUp`/`PageDown` scroll results.
 
 ## Commands
 

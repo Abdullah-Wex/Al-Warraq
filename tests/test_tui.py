@@ -136,3 +136,31 @@ async def test_escape_clears_input_and_popup(tmp_path: Path) -> None:
         await pilot.press("/", "t", "escape")
         assert app.query_one(Input).value == ""
         assert app.query_one(CommandPopup).display is False
+
+
+async def test_up_recalls_previous_input(tmp_path: Path) -> None:
+    app = WarraqApp(_make_book(tmp_path))
+    async with app.run_test() as pilot:
+        await pilot.press(*"redux", "enter")
+        await app.workers.wait_for_complete()
+        await pilot.press("up")
+        assert app.query_one(Input).value == "redux"
+        # Recalling a slash command must not reopen the popup.
+        await pilot.press("escape", *"/info", "enter", "enter")
+        await app.workers.wait_for_complete()
+        await pilot.press("up")
+        assert app.query_one(Input).value == "/info"
+        assert app.query_one(CommandPopup).display is False
+
+
+async def test_history_persists_across_app_sessions(tmp_path: Path) -> None:
+    book = _make_book(tmp_path)
+    app = WarraqApp(book)
+    async with app.run_test() as pilot:
+        await pilot.press(*"redux", "enter")
+        await app.workers.wait_for_complete()
+
+    second = WarraqApp(book)
+    async with second.run_test() as pilot:
+        await pilot.press("up")
+        assert second.query_one(Input).value == "redux"

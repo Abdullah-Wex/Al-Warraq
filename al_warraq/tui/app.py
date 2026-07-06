@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import ClassVar
 
 from rich.console import RenderableType
@@ -13,6 +14,7 @@ from textual.widgets import Input, RichLog, Static
 
 from ..book import Book
 from .commands import execute
+from .history import SessionHistory
 from .widgets import CommandPopup
 
 
@@ -50,6 +52,10 @@ class WarraqApp(App[None]):
     def __init__(self, book: Book) -> None:
         super().__init__()
         self.book = book
+        self.history = SessionHistory(
+            Path(book.output_dir) / book.hash / "tui_history",
+        )
+        self._recalling = False
 
     def compose(self) -> ComposeResult:
         yield Static(
@@ -69,6 +75,12 @@ class WarraqApp(App[None]):
 
     def on_input_changed(self, event: Input.Changed) -> None:
         popup = self.query_one(CommandPopup)
+        if self._recalling:
+            # A history recall isn't typing: keep walking history, no popup.
+            self._recalling = False
+            popup.hide()
+            return
+        self.history.reset()  # typing returns the cursor to the live prompt
         value = event.value
         if value.startswith("/") and " " not in value:
             popup.show_filtered(value)
@@ -84,6 +96,7 @@ class WarraqApp(App[None]):
         line = event.value.strip()
         if not line:
             return
+        self.history.add(line)
         self.query_one(Input).value = ""
         self._write(Text(f"❯ {line}", style="bold"))  # noqa: RUF001
         self._run_command(line)
@@ -100,7 +113,18 @@ class WarraqApp(App[None]):
             self._complete(completion)
 
     def action_highlight(self, delta: int) -> None:
-        self.query_one(CommandPopup).move_highlight(delta)
+        """Up/Down: popup highlight when visible, history recall otherwise."""
+        popup = self.query_one(CommandPopup)
+        if popup.display:
+            popup.move_highlight(delta)
+            return
+        recalled = self.history.previous() if delta < 0 else self.history.next()
+        if recalled is None:
+            return
+        self._recalling = True
+        prompt = self.query_one(Input)
+        prompt.value = recalled
+        prompt.cursor_position = len(recalled)
 
     def action_scroll_results(self, direction: str) -> None:
         log = self.query_one(RichLog)

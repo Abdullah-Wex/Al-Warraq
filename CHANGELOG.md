@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Interactive app: `↑`/`↓` recall previous inputs when the command popup
+  is closed. History persists per book (last 500 entries, consecutive
+  duplicates collapsed) at `<cache>/<hash>/tui_history` — local only.
+
 ### Changed
 
 - Default cache location moved from the system tempdir to the platform
