@@ -89,7 +89,7 @@ al-warraq inspect <PATH> [--output-dir DIR]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--output-dir`, `-o` | System temp | Extraction directory |
+| `--output-dir`, `-o` | User cache dir | Extraction directory |
 
 ```bash
 al-warraq inspect book.epub
@@ -109,7 +109,7 @@ al-warraq extract <PATH> [--output-dir DIR]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--output-dir`, `-o` | System temp | Extraction directory |
+| `--output-dir`, `-o` | User cache dir | Extraction directory |
 
 ```bash
 al-warraq extract book.epub -o ./extracted
@@ -143,7 +143,7 @@ al-warraq toc <PATH> [--output-dir DIR]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--output-dir`, `-o` | System temp | Extraction directory |
+| `--output-dir`, `-o` | User cache dir | Extraction directory |
 
 Each entry shows a type tag and the section's anchor or file reference:
 
@@ -226,6 +226,21 @@ al-warraq content book.epub --anchor "ch01_intro" --exclude "footnotes,bibliogra
 | Variable | Description |
 |----------|-------------|
 | `AL_WARRAQ_DEBUG` | Set to `1` or `true` for full exception tracebacks |
+| `AL_WARRAQ_OUTPUT_DIR` | Override the cache location (extraction dirs + search indexes) |
+
+### Cache location
+
+Extracted books and search indexes are cached per user, keyed by content
+hash, so each book is processed once:
+
+| Platform | Default |
+|----------|---------|
+| macOS | `~/Library/Caches/al-warraq` |
+| Linux | `$XDG_CACHE_HOME/al-warraq` or `~/.cache/al-warraq` |
+| Windows | `%LOCALAPPDATA%\al-warraq` |
+
+The cache is disposable — delete it anytime and everything rebuilds on next
+use.
 
 ---
 

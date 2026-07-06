@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-import tempfile
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -19,11 +19,25 @@ _MINIO_ENV = (
 )
 
 
+def user_cache_dir() -> Path:
+    """The platform's per-user cache directory for al-warraq.
+
+    Everything under it is disposable: extraction dirs and search indexes
+    rebuild from the EPUB bytes on demand. A persistent location (unlike the
+    system tempdir, which macOS purges) means each book is processed once.
+    """
+    if sys.platform == "darwin":
+        base = Path.home() / "Library" / "Caches"
+    elif sys.platform == "win32":
+        base = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local")
+    else:
+        base = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
+    return base / "al-warraq"
+
+
 def resolve_output_dir() -> str:
-    """Return ``AL_WARRAQ_OUTPUT_DIR`` if set, else ``<tempdir>/al-warraq``."""
-    return os.environ.get(_ENV_OUTPUT_DIR) or str(
-        Path(tempfile.gettempdir()) / "al-warraq"
-    )
+    """Return ``AL_WARRAQ_OUTPUT_DIR`` if set, else the user cache dir."""
+    return os.environ.get(_ENV_OUTPUT_DIR) or str(user_cache_dir())
 
 
 class MinioCache:
