@@ -44,6 +44,13 @@ Or with `uv`:
 uv add al-warraq
 ```
 
+Optional extras:
+
+```bash
+pip install "al-warraq[tui]"     # interactive terminal app (al-warraq book.epub)
+pip install "al-warraq[minio]"   # MinIO-backed extraction cache
+```
+
 ## Quick Start
 
 ### Python
@@ -86,6 +93,20 @@ al-warraq --help
 | `search` | BM25 full-text search across sections |
 
 ![CLI Search](https://github.com/Abdullah-Wex/Al-Warraq/blob/main/docs/screenshots/cli-search.png?raw=true)
+
+### Interactive Mode
+
+With the `tui` extra installed, a bare path opens a full terminal app on the
+book — header, scrollable results, and a bottom input with `/` slash commands
+(`/toc`, `/search`, `/content`, `/info`, `/open`, `/help`, `/quit`); bare text
+runs a BM25 search:
+
+```bash
+al-warraq book.epub
+```
+
+Path only → open the book; verb + path → one-shot answer. Without a TTY (or
+without the extra) it falls back to `inspect`, so scripts never block.
 
 **[Full CLI documentation →](docs/CLI.md)**
 

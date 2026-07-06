@@ -42,6 +42,41 @@ al-warraq search book.epub "transformers" --json | jq '.results[0].anchor'
 al-warraq validate book.epub --json && echo "valid"
 ```
 
+## Interactive mode
+
+A bare EPUB path opens the interactive browser (requires the `tui` extra):
+
+```bash
+pip install "al-warraq[tui]"
+al-warraq book.epub
+```
+
+| Invocation | Behavior |
+|------------|----------|
+| `al-warraq book.epub` | Opens the interactive app (path only → open the book) |
+| `al-warraq <verb> book.epub` | One-shot answer, prints and exits (verb + path → ask a question) |
+| `al-warraq` | Help + a hint about the interactive mode — never auto-enters it |
+| Path only, but stdin/stdout is not a TTY | Falls back to `inspect` — pipes and scripts never block |
+| Path only, `tui` extra not installed | Install hint on stderr, `inspect` output on stdout |
+
+The app shows a header (title · EPUB version · TOC type), a scrollable
+results pane, and a bottom input. Bare text runs a BM25 search; typing `/`
+opens a filter-as-you-type command popup. Session verbs are the same
+vocabulary as the one-shot verbs and use the same renderers:
+
+| Verb | Does |
+|------|------|
+| `/toc` | Show the table of contents |
+| `/search <query>` | Full-text BM25 search (same as bare text) |
+| `/content <anchor> [fmt]` | Show one section — `markdown` (default), `plaintext`, or `html`; the reference resolves as a TOC anchor first, then as a chapter file |
+| `/info` | Title, version, TOC type, paths |
+| `/open` | Open the extracted book folder |
+| `/help` | List all commands |
+| `/quit` | Exit (also `Ctrl+Q`) |
+
+Keys: `↑`/`↓` move the popup highlight, `Tab`/`Enter` complete the
+highlighted command, `Esc` clears, `PageUp`/`PageDown` scroll results.
+
 ## Commands
 
 ### inspect
