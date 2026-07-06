@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Library view: `al-warraq <folder>` opens a picker over every book in
+  the folder; typing searches across all books (per-book BM25 indexes
+  merged at query time), and opening a hit jumps into that book's session
+  at the matching section. Without a TTY, a plain listing (path, title,
+  version) is printed instead.
+- Unzipped EPUB package folders (`mimetype` + `META-INF/` + OPF — the
+  layout some reading apps store books in) are now first-class books:
+  discovered by the library view, openable directly, hashed
+  deterministically, parsed in place with no extraction step. `.icloud`
+  cloud placeholders are skipped.
+
 - Interactive app: `↑`/`↓` recall previous inputs when the command popup
   is closed. History persists per book (last 500 entries, consecutive
   duplicates collapsed) at `<cache>/<hash>/tui_history` — local only.

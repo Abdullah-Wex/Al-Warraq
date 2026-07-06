@@ -9,13 +9,38 @@ from .exceptions import InvalidEpubError
 from .storage import get_minio_cache
 
 
+def is_epub_package(path: Path) -> bool:
+    """True iff ``path`` is a directory laid out as an unzipped EPUB.
+
+    Some reading apps (and this library's own extraction) store books as
+    expanded folders rather than zip files: ``mimetype`` + ``META-INF/`` +
+    an OPF somewhere inside.
+    """
+    return path.is_dir() and (
+        (path / "META-INF" / "container.xml").is_file()
+        or (path / "mimetype").is_file()
+    )
+
+
 def hash_epub(epub_path: str) -> str:
-    """SHA-256 hash of the EPUB file (first 16 hex chars)."""
+    """Content hash of an EPUB (first 16 hex chars of SHA-256).
+
+    Works for both zipped ``.epub`` files and unzipped EPUB package
+    directories; for directories the hash covers every file's relative
+    path and bytes in sorted order, so it is deterministic and moves with
+    the content, not the location.
+    """
     path = Path(epub_path)
+    sha256 = hashlib.sha256()
+
+    if is_epub_package(path):
+        for file in sorted(p for p in path.rglob("*") if p.is_file()):
+            sha256.update(str(file.relative_to(path)).encode())
+            sha256.update(file.read_bytes())
+        return sha256.hexdigest()[:16]
+
     if not path.is_file():
         raise InvalidEpubError(f"EPUB file not found: {epub_path}")
-
-    sha256 = hashlib.sha256()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             sha256.update(chunk)
@@ -23,8 +48,14 @@ def hash_epub(epub_path: str) -> str:
 
 
 def extract_epub(epub_path: str, output_dir: str) -> Path:
-    """Extract EPUB to output_dir/<hash>/. Returns extraction directory."""
+    """Extract EPUB to output_dir/<hash>/. Returns extraction directory.
+
+    An unzipped EPUB package directory is already "extracted": it is
+    returned as-is and parsed in place — no copy, no zip guards needed.
+    """
     path = Path(epub_path)
+    if is_epub_package(path):
+        return path
     if not path.is_file():
         raise InvalidEpubError(f"EPUB file not found: {epub_path}")
 

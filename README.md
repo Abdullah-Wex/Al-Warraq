@@ -102,11 +102,14 @@ book — header, scrollable results, and a bottom input with `/` slash commands
 runs a BM25 search:
 
 ```bash
-al-warraq book.epub
+al-warraq book.epub     # one book
+al-warraq ~/books/      # library view: browse + search across all books
 ```
 
-Path only → open the book; verb + path → one-shot answer. Without a TTY (or
-without the extra) it falls back to `inspect`, so scripts never block.
+Path only → open the book; a folder → the library view (cross-book BM25
+search, unzipped EPUB package folders included); verb + path → one-shot
+answer. Without a TTY (or without the extra) it falls back to plain output,
+so scripts never block.
 
 **[Full CLI documentation →](docs/CLI.md)**
 
