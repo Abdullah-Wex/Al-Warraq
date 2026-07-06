@@ -54,10 +54,15 @@ al-warraq book.epub
 | Invocation | Behavior |
 |------------|----------|
 | `al-warraq book.epub` | Opens the interactive app (path only → open the book) |
+| `al-warraq <folder>` | Opens the library view over the folder's books |
 | `al-warraq <verb> book.epub` | One-shot answer, prints and exits (verb + path → ask a question) |
 | `al-warraq` | Help + a hint about the interactive mode — never auto-enters it |
-| Path only, but stdin/stdout is not a TTY | Falls back to `inspect` — pipes and scripts never block |
-| Path only, `tui` extra not installed | Install hint on stderr, `inspect` output on stdout |
+| Path only, but stdin/stdout is not a TTY | Falls back to `inspect` (or a plain book listing for a folder) — pipes and scripts never block |
+| Path only, `tui` extra not installed | Install hint on stderr, `inspect` output (or listing) on stdout |
+
+Books can be zipped `.epub` files **or** unzipped EPUB package folders
+(`mimetype` + `META-INF/` + an OPF) — the layout some reading apps use to
+store their libraries. Cloud placeholder stubs (`.icloud`) are skipped.
 
 The app shows a header (title · EPUB version · TOC type), a scrollable
 results pane, and a bottom input. Bare text runs a BM25 search; typing `/`
@@ -78,6 +83,15 @@ Keys: `↑`/`↓` move the popup highlight — or, when the popup is closed,
 recall previous inputs (history is kept per book across sessions, stored
 locally in the cache directory). `Tab`/`Enter` complete the highlighted
 command, `Esc` clears, `PageUp`/`PageDown` scroll results.
+
+### Library view
+
+`al-warraq <folder>` lists every book in the folder (title · EPUB version
+· file name). Typing a query searches **all** books — per-book BM25
+indexes are merged at query time, each hit prefixed with its book title.
+`↑`/`↓` move the highlight, `Enter` opens the highlighted book (or jumps
+into a search hit's section), `Esc` goes back — from results to the book
+list, and from an opened book to the picker. `Ctrl+Q` quits.
 
 ## Commands
 

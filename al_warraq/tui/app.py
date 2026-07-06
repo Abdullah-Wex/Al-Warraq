@@ -10,6 +10,7 @@ from rich.text import Text
 from textual import work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
+from textual.screen import Screen
 from textual.widgets import Input, RichLog, Static
 
 from ..book import Book
@@ -18,29 +19,10 @@ from .history import SessionHistory
 from .widgets import CommandPopup
 
 
-class WarraqApp(App[None]):
-    """Header · scrollable results pane · bottom input with slash commands."""
-
-    CSS = """
-    #header {
-        dock: top;
-        height: 1;
-        background: $primary;
-        color: $text;
-        padding: 0 1;
-    }
-    #prompt { dock: bottom; }
-    #popup {
-        dock: bottom;
-        max-height: 9;
-        border: round $primary;
-    }
-    #results { padding: 0 1; }
-    """
+class BookScreen(Screen[None]):
+    """One book: header · scrollable results pane · input with slash commands."""
 
     BINDINGS: ClassVar = [
-        Binding("ctrl+q", "quit", "Quit"),
-        Binding("ctrl+c", "quit", "Quit", show=False),
         Binding("escape", "dismiss_popup", "Clear", show=False),
         Binding("tab", "complete", "Complete", priority=True, show=False),
         Binding("up", "highlight(-1)", show=False),
@@ -49,9 +31,10 @@ class WarraqApp(App[None]):
         Binding("pagedown", "scroll_results('down')", show=False),
     ]
 
-    def __init__(self, book: Book) -> None:
+    def __init__(self, book: Book, initial_command: str | None = None) -> None:
         super().__init__()
         self.book = book
+        self.initial_command = initial_command
         self.history = SessionHistory(
             Path(book.output_dir) / book.hash / "tui_history",
         )
@@ -70,6 +53,9 @@ class WarraqApp(App[None]):
     def on_mount(self) -> None:
         self.query_one(Input).focus()
         self._write(Text("Type to search, / for commands, /help for the list."))
+        if self.initial_command:
+            self._write(Text(f"❯ {self.initial_command}", style="bold"))  # noqa: RUF001
+            self._run_command(self.initial_command)
 
     # ------------------------------------------------------------------ input
 
@@ -104,8 +90,13 @@ class WarraqApp(App[None]):
     # ----------------------------------------------------------------- actions
 
     def action_dismiss_popup(self) -> None:
-        self.query_one(CommandPopup).hide()
-        self.query_one(Input).value = ""
+        popup = self.query_one(CommandPopup)
+        prompt = self.query_one(Input)
+        if not popup.display and not prompt.value and len(self.app.screen_stack) > 1:
+            self.app.pop_screen()  # opened from the library picker — go back
+            return
+        popup.hide()
+        prompt.value = ""
 
     def action_complete(self) -> None:
         completion = self.query_one(CommandPopup).completion
@@ -140,9 +131,9 @@ class WarraqApp(App[None]):
         """Execute off the UI thread: first search builds the BM25 index."""
         result = execute(self.book, line)
         if result is None:
-            self.call_from_thread(self.exit)
+            self.app.call_from_thread(self.app.exit)
             return
-        self.call_from_thread(self._write, result)
+        self.app.call_from_thread(self._write, result)
 
     # ---------------------------------------------------------------- helpers
 
@@ -157,3 +148,39 @@ class WarraqApp(App[None]):
         log = self.query_one(RichLog)
         log.write(renderable, expand=True)
         log.write("")
+
+
+SHARED_CSS = """
+#header {
+    dock: top;
+    height: 1;
+    background: $primary;
+    color: $text;
+    padding: 0 1;
+}
+#prompt { dock: bottom; }
+#popup {
+    dock: bottom;
+    max-height: 9;
+    border: round $primary;
+}
+#results { padding: 0 1; }
+"""
+
+
+class WarraqApp(App[None]):
+    """Single-book session: al-warraq book.epub."""
+
+    CSS = SHARED_CSS
+
+    BINDINGS: ClassVar = [
+        Binding("ctrl+q", "quit", "Quit"),
+        Binding("ctrl+c", "quit", "Quit", show=False),
+    ]
+
+    def __init__(self, book: Book) -> None:
+        super().__init__()
+        self.book = book
+
+    def get_default_screen(self) -> BookScreen:
+        return BookScreen(self.book)

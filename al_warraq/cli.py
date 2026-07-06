@@ -13,8 +13,9 @@ import typer
 
 from . import __version__
 from .book import Book
-from .epub import extract_epub, hash_epub
+from .epub import extract_epub, hash_epub, is_epub_package
 from .exceptions import AlWarraqError
+from .library import find_books
 from .output import (
     build_search_results,
     build_toc_tree,
@@ -307,24 +308,26 @@ def search(
 #
 #   al-warraq <verb> book.epub   → one-shot answer, prints and exits
 #   al-warraq book.epub          → interactive browser (the TUI)
+#   al-warraq <folder>           → library view over the folder's books
 #   al-warraq                    → help (never auto-enters the TUI)
 
 _COMMANDS = frozenset({"inspect", "extract", "validate", "toc", "content", "search"})
 
 
 def _resolve_invocation(args: list[str]) -> Path | None:
-    """Return the EPUB path for a path-only invocation, else None.
+    """Return the path for a path-only invocation, else None.
 
     Path mode is exactly one positional argument that is not an option, not a
-    command name, and either ends in ``.epub`` or is an existing file. Anything
-    else (verbs, flags, multiple arguments) is handled by Typer as usual.
+    command name, and either ends in ``.epub`` or is an existing file or
+    directory. Anything else (verbs, flags, multiple arguments) is handled by
+    Typer as usual.
     """
     if len(args) != 1:
         return None
     arg = args[0]
     if arg.startswith("-") or arg in _COMMANDS:
         return None
-    if arg.endswith(".epub") or Path(arg).is_file():
+    if arg.endswith(".epub") or Path(arg).is_file() or Path(arg).is_dir():
         return Path(arg)
     return None
 
@@ -332,10 +335,15 @@ def _resolve_invocation(args: list[str]) -> Path | None:
 def _run_path_mode(path: Path) -> None:
     """Open the interactive browser on ``path``, or fall back to ``inspect``.
 
-    Fallback order: no TTY (scripts/pipes must never block) → tui extra not
-    installed (hint on stderr, inspect on stdout) → invalid EPUB (normal
-    one-line error, exit 1) → launch the app.
+    A directory (unless it is itself an unzipped EPUB package) opens the
+    library view over its books. Fallback order: no TTY (scripts/pipes must
+    never block) → tui extra not installed (hint on stderr, plain output on
+    stdout) → invalid input (one-line error, exit 1) → launch the app.
     """
+    if path.is_dir() and not is_epub_package(path):
+        _run_library_mode(path)
+        return
+
     if not (sys.stdin.isatty() and sys.stdout.isatty()):
         app(["inspect", str(path)])
         return
@@ -348,6 +356,36 @@ def _run_path_mode(path: Path) -> None:
     from .tui import run_app
 
     run_app(book)
+
+
+def _run_library_mode(directory: Path) -> None:
+    """Open the library view over a folder of books, or list them plainly."""
+    books = find_books(directory)
+    if not books:
+        fail(f"No EPUB books found in {directory}")
+
+    interactive = sys.stdin.isatty() and sys.stdout.isatty()
+    if interactive and importlib.util.find_spec("textual") is None:
+        warn("Interactive mode needs the tui extra: pip install al-warraq[tui]")
+        interactive = False
+
+    if not interactive:
+        _print_book_listing(books)
+        return
+
+    from .tui import run_library_app
+
+    run_library_app(directory)
+
+
+def _print_book_listing(books: list[Path]) -> None:
+    """One line per discovered book: path, title, EPUB version."""
+    for path in books:
+        try:
+            book = Book.open(path, _DEFAULT_OUT)
+            emit_data(f"{path}\t{book.doc_title}\tEPUB {book.version}")
+        except AlWarraqError as e:
+            warn(f"{path}: {e}")
 
 
 def cli_entry() -> None:
