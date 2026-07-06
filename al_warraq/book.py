@@ -199,6 +199,19 @@ class Book:
             text=text,
         )
 
+    def section_by_ref(
+        self, ref: str, *, output_format: str | None = None,
+    ) -> SectionContent:
+        """Extract a section from one reference: a TOC anchor first, else a file.
+
+        Interactive frontends take a single token from the reader; this
+        resolves it so they don't have to know the anchor/file distinction.
+        """
+        try:
+            return self.section(anchor=ref, output_format=output_format)
+        except SectionNotFoundError:
+            return self.section(file=ref, output_format=output_format)
+
     def _find_target(self, anchor: str | None, file: str | None) -> NavPoint:
         """Find the TOC entry the caller is asking for."""
         all_points = self.flat_toc()

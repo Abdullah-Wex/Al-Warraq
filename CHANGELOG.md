@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Interactive terminal app: `al-warraq book.epub` (path only) opens a
+  Textual browser — header, scrollable results pane, bottom input with
+  `/` slash commands (`/toc /search /content /info /open /help /quit`);
+  bare text runs BM25 search. Installed via the `tui` extra; without a
+  TTY or without the extra, path-only invocation falls back to `inspect`.
+- `Book.section_by_ref()` — resolve a single reference as a TOC anchor
+  first, then as a chapter file.
+- Reusable renderable builders in `output.py` (`build_kv`,
+  `build_toc_tree`, `build_search_results`, `inspect_pairs`) shared by
+  the CLI and the interactive app.
 - `ContentStore` — content-addressed, deduplicated blob storage (identical
   bytes stored once, `content_hash` = full SHA-256). Backends:
   `LocalContentStore` (filesystem) and `MinioContentStore` (`minio` extra);
