@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Default cache location moved from the system tempdir to the platform
+  user cache dir (`~/Library/Caches/al-warraq` on macOS,
+  `$XDG_CACHE_HOME/al-warraq` or `~/.cache/al-warraq` on Linux,
+  `%LOCALAPPDATA%\al-warraq` on Windows), so extractions and search
+  indexes survive reboots and tmp cleanup. `AL_WARRAQ_OUTPUT_DIR` still
+  overrides; the cache remains fully disposable.
+
 ### Added
 
 - Interactive terminal app: `al-warraq book.epub` (path only) opens a

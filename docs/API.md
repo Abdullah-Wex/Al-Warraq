@@ -26,7 +26,7 @@ One-step inspection: hash, extract, parse OPF, detect TOC.
 ```python
 from al_warraq import inspect_epub, EpubInfo
 
-info: EpubInfo = inspect_epub(epub_path: str, output_dir: str = "/tmp/al-warraq")
+info: EpubInfo = inspect_epub(epub_path: str, output_dir: str | None = None)  # None → user cache dir
 ```
 
 **Parameters:**

@@ -3,17 +3,36 @@
 from __future__ import annotations
 
 import sys
-import tempfile
 from pathlib import Path
 
 import pytest
-from al_warraq.storage import get_minio_cache, resolve_output_dir
+from al_warraq.storage import get_minio_cache, resolve_output_dir, user_cache_dir
 
 
-def test_resolve_output_dir_default(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_resolve_output_dir_default_is_user_cache(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.delenv("AL_WARRAQ_OUTPUT_DIR", raising=False)
-    expected = str(Path(tempfile.gettempdir()) / "al-warraq")
-    assert resolve_output_dir() == expected
+    assert resolve_output_dir() == str(user_cache_dir())
+
+
+def test_user_cache_dir_is_persistent_and_named() -> None:
+    path = user_cache_dir()
+    assert path.name == "al-warraq"
+    # Never inside the system tempdir — that's the whole point.
+    import tempfile
+
+    assert not str(path).startswith(tempfile.gettempdir())
+    if sys.platform == "darwin":
+        assert path == Path.home() / "Library" / "Caches" / "al-warraq"
+
+
+def test_user_cache_dir_honors_xdg_on_linux(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    monkeypatch.setattr(sys, "platform", "linux")
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
+    assert user_cache_dir() == tmp_path / "al-warraq"
 
 
 def test_resolve_output_dir_env_override(
@@ -27,8 +46,7 @@ def test_resolve_output_dir_empty_env_falls_back(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("AL_WARRAQ_OUTPUT_DIR", "")
-    expected = str(Path(tempfile.gettempdir()) / "al-warraq")
-    assert resolve_output_dir() == expected
+    assert resolve_output_dir() == str(user_cache_dir())
 
 
 def test_get_minio_cache_missing_env(monkeypatch: pytest.MonkeyPatch) -> None:
