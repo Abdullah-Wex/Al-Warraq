@@ -69,6 +69,64 @@ def test_bug6_dublin_core_html_entities_unescaped(tmp_path: Path) -> None:
     assert info.creator == "Foster & Tom"
 
 
+def test_dublin_core_full_metadata(tmp_path: Path) -> None:
+    opf = tmp_path / "content.opf"
+    opf.write_text(
+        '<package xmlns="http://www.idpf.org/2007/opf" version="3.0">'
+        '<metadata xmlns:dc="http://purl.org/dc/elements/1.1/" '
+        'xmlns:opf="http://www.idpf.org/2007/opf">'
+        "<dc:title>Full Meta</dc:title>"
+        '<dc:creator opf:role="aut">Ada Author</dc:creator>'
+        '<dc:creator opf:role="edt">Ed Editor</dc:creator>'
+        "<dc:language>en</dc:language>"
+        "<dc:description>A test book.</dc:description>"
+        "<dc:date>2024-05-01</dc:date>"
+        '<dc:identifier opf:scheme="ISBN">978-1-4920-6093-2</dc:identifier>'
+        "<dc:subject>Testing</dc:subject>"
+        "<dc:subject>Python</dc:subject>"
+        "</metadata><manifest/></package>"
+    )
+    info = parse_opf(str(opf), str(tmp_path))
+    assert info.language == "en"
+    assert info.description == "A test book."
+    assert info.date == "2024-05-01"
+    assert info.isbn == "9781492060932"
+    assert [(c.name, c.role) for c in info.creators] == [
+        ("Ada Author", "aut"), ("Ed Editor", "edt"),
+    ]
+    assert info.creator == "Ada Author"  # compatibility: first creator
+    assert info.subjects == ["Testing", "Python"]
+
+
+def test_dublin_core_urn_isbn_identifier(tmp_path: Path) -> None:
+    opf = tmp_path / "content.opf"
+    opf.write_text(
+        '<package xmlns="http://www.idpf.org/2007/opf" version="2.0">'
+        '<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">'
+        "<dc:title>T</dc:title>"
+        "<dc:identifier>urn:isbn:9781801073493</dc:identifier>"
+        "<dc:identifier>uuid-not-an-isbn</dc:identifier>"
+        "</metadata><manifest/></package>"
+    )
+    info = parse_opf(str(opf), str(tmp_path))
+    assert info.isbn == "9781801073493"
+
+
+def test_dublin_core_fields_absent_are_empty(tmp_path: Path) -> None:
+    opf = tmp_path / "content.opf"
+    opf.write_text(
+        '<package xmlns="http://www.idpf.org/2007/opf" version="2.0">'
+        '<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">'
+        "<dc:title>Bare</dc:title>"
+        "</metadata><manifest/></package>"
+    )
+    info = parse_opf(str(opf), str(tmp_path))
+    assert info.language is None
+    assert info.isbn is None
+    assert info.creators == []
+    assert info.subjects == []
+
+
 # ---------------------------------------------------------------- BUG-8 ---
 def test_bug8_extract_all_sections_no_duplication(tmp_path: Path) -> None:
     # One XHTML file with four sections anchored as "s1".."s4".
