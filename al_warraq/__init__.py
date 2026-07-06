@@ -30,7 +30,7 @@ from .exceptions import (
 from .hooks import Embedder, PassageSplitter, StructuralSplitter
 from .nav import parse_nav
 from .ncx import NavPoint, NcxData, parse_ncx
-from .opf import EpubInfo, TocInfo, parse_opf
+from .opf import Creator, EpubInfo, TocInfo, parse_opf
 from .processing import (
     SCHEMA_VERSION,
     BookMetadata,
@@ -51,6 +51,7 @@ __all__ = [
     "Book",
     "BookMetadata",
     "ContentStore",
+    "Creator",
     "Embedder",
     "EpubInfo",
     "InvalidEpubError",

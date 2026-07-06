@@ -1,7 +1,7 @@
 """OPF parsing — version detection and TOC type discovery."""
 
 import html
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -23,6 +23,14 @@ class TocInfo:
 
 
 @dataclass
+class Creator:
+    """One dc:creator entry: a name plus its MARC relator role, if declared."""
+
+    name: str
+    role: str | None = None  # MARC relator code, e.g. "aut", "edt", "trl"
+
+
+@dataclass
 class EpubInfo:
     """EPUB inspection result."""
 
@@ -31,11 +39,17 @@ class EpubInfo:
     opf_path: Path
     title: str | None = None
     publisher: str | None = None
-    creator: str | None = None
+    creator: str | None = None  # first creator's name (kept for compatibility)
+    language: str | None = None
+    description: str | None = None
+    date: str | None = None  # dc:date as written (usually ISO 8601)
+    isbn: str | None = None  # first ISBN-looking dc:identifier
+    creators: list[Creator] = field(default_factory=list)
+    subjects: list[str] = field(default_factory=list)
 
 
 def parse_opf(opf_path: str, epub_dir: str | None = None) -> EpubInfo:
-    """Parse OPF file for version and TOC type."""
+    """Parse OPF file for version, TOC type, and Dublin Core metadata."""
     path = Path(opf_path)
 
     try:
@@ -52,11 +66,7 @@ def parse_opf(opf_path: str, epub_dir: str | None = None) -> EpubInfo:
             "OPF root element missing 'version' attribute — cannot determine EPUB version"
         )
 
-    # Dublin Core fields — HTML-unescape so numeric entities decode
-    # (e.g. ``O&#8217;Reilly`` → ``O'Reilly``).
-    title = _dc_text(root, "title")
-    publisher = _dc_text(root, "publisher")
-    creator = _dc_text(root, "creator")
+    creators = _dc_creators(root)
 
     # TOC detection from manifest
     toc = _detect_toc(root, path.parent, epub_dir)
@@ -65,9 +75,15 @@ def parse_opf(opf_path: str, epub_dir: str | None = None) -> EpubInfo:
         version=version,
         toc=toc,
         opf_path=path,
-        title=title,
-        publisher=publisher,
-        creator=creator,
+        title=_dc_text(root, "title"),
+        publisher=_dc_text(root, "publisher"),
+        creator=creators[0].name if creators else None,
+        language=_dc_text(root, "language"),
+        description=_dc_text(root, "description"),
+        date=_dc_text(root, "date"),
+        isbn=_dc_isbn(root),
+        creators=creators,
+        subjects=_dc_texts(root, "subject"),
     )
 
 
@@ -76,6 +92,42 @@ def _dc_text(root: ET.Element, tag: str) -> str | None:
     el = root.find(f".//{{{DC_NS}}}{tag}")
     if el is not None and el.text:
         return html.unescape(el.text.strip())
+    return None
+
+
+def _dc_texts(root: ET.Element, tag: str) -> list[str]:
+    """Every non-empty text of a repeated Dublin Core element, in order."""
+    return [
+        html.unescape(el.text.strip())
+        for el in root.findall(f".//{{{DC_NS}}}{tag}")
+        if el.text and el.text.strip()
+    ]
+
+
+def _dc_creators(root: ET.Element) -> list[Creator]:
+    """All dc:creator entries with their MARC relator roles (opf:role attr)."""
+    creators = []
+    for el in root.findall(f".//{{{DC_NS}}}creator"):
+        if not (el.text and el.text.strip()):
+            continue
+        creators.append(Creator(
+            name=html.unescape(el.text.strip()),
+            role=el.get(f"{{{OPF_NS}}}role"),
+        ))
+    return creators
+
+
+def _dc_isbn(root: ET.Element) -> str | None:
+    """The first dc:identifier that looks like an ISBN, digits only."""
+    for el in root.findall(f".//{{{DC_NS}}}identifier"):
+        if not el.text:
+            continue
+        value = el.text.strip()
+        scheme = (el.get(f"{{{OPF_NS}}}scheme") or "").lower()
+        if scheme == "isbn" or value.lower().startswith("urn:isbn:") or "isbn" in value.lower():
+            digits = "".join(c for c in value if c.isdigit() or c in "Xx")
+            if len(digits) in (10, 13):
+                return digits
     return None
 
 

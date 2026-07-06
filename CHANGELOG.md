@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Richer Dublin Core metadata on `EpubInfo`: `language`, `description`,
+  `date`, `isbn` (normalized digits from ISBN-looking identifiers),
+  `subjects`, and `creators` (every `dc:creator` with its MARC relator
+  role). `creator` keeps returning the first creator's name.
+
 - Library view: `al-warraq <folder>` opens a picker over every book in
   the folder; typing searches across all books (per-book BM25 indexes
   merged at query time), and opening a hit jumps into that book's session
